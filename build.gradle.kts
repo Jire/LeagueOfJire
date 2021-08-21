@@ -3,9 +3,10 @@ plugins {
 	java
 }
 
-group = "org.jire.leagueofjire"
+group = "com.leagueofjire"
 version = "0.1.0"
 
+val jnaVersion = "5.8.0"
 val gdxVersion = "1.10.0"
 val visuiVersion = "1.4.7"
 
@@ -16,8 +17,8 @@ repositories {
 dependencies {
 	implementation(kotlin("stdlib"))
 	
-	implementation("net.java.dev.jna:jna:5.8.0")
-	implementation("net.java.dev.jna:jna-platform:5.8.0")
+	implementation("net.java.dev.jna:jna:$")
+	implementation("net.java.dev.jna:jna-platform:$jnaVersion")
 	
 	implementation("org.jire", "kna", "0.4.2")
 	

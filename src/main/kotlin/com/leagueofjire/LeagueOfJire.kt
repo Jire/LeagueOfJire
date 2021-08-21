@@ -22,7 +22,7 @@ object LeagueOfJire {
 		priority = Thread.MAX_PRIORITY
 	}
 	
-	private const val CYCLE_MILLIS = 4L
+	private const val CYCLE_MILLIS = 16L
 	
 	private fun cycleLoop(cycleMillis: Long = CYCLE_MILLIS) {
 		UnitData.load()
