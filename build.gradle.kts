@@ -6,6 +6,9 @@ plugins {
 group = "org.jire.leagueofjire"
 version = "0.1.0"
 
+val gdxVersion = "1.10.0"
+val visuiVersion = "1.4.7"
+
 repositories {
 	mavenCentral()
 }
@@ -22,4 +25,12 @@ dependencies {
 	
 	implementation("com.fasterxml.jackson.core:jackson-databind:2.12.4")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
+	
+	implementation("com.badlogicgames.gdx:gdx:$gdxVersion")
+	implementation("com.badlogicgames.gdx:gdx-box2d:$gdxVersion")
+	implementation("com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion")
+	implementation("com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop")
+	implementation("com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop")
+	implementation("com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop")
+	implementation("com.badlogicgames.gdx:gdx-freetype:$gdxVersion")
 }

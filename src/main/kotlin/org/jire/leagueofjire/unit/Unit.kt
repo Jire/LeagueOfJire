@@ -6,14 +6,13 @@ import org.jire.leagueofjire.model.Champion
 import org.jire.leagueofjire.model.Renderer
 import org.jire.leagueofjire.offsets.GameObject
 import org.jire.leagueofjire.util.riotString
-import java.awt.MouseInfo
 import java.awt.Robot
 import kotlin.math.abs
 
 open class Unit(val address: Long) {
 	
 	companion object {
-		const val sizeBuff = 0x4000L
+		const val sizeData = 0x4000L
 		const val sizeBuffDeep = 0x1000L
 	}
 	
@@ -42,9 +41,9 @@ open class Unit(val address: Long) {
 	var spawnCount = -1
 	var isAlive = false
 	
-	fun load(lol: AttachedProcess, deepLoad: Boolean, renderer: Renderer, player: Champion): Pointer? {
+	fun load(process: AttachedProcess, deepLoad: Boolean, renderer: Renderer, player: Champion, autosmite: Boolean = false): Pointer? {
 		if (address <= 0) return null
-		val buff = lol.readPointer(address, sizeBuff)
+		val buff = process.readPointer(address, sizeData)
 		if (!buff.readable()) return null
 		
 		team = buff.getShort(GameObject.ObjTeam).toInt()
@@ -71,23 +70,27 @@ open class Unit(val address: Long) {
 		spawnCount = buff.getInt(GameObject.ObjSpawnCount)
 		isAlive = spawnCount % 2 == 0
 		
-		if (deepLoad) {
+		if (deepLoad && autosmite) {
 			val nameAddress = buff.getInt(GameObject.ObjName).toLong()
 			if (nameAddress <= 0) return null
 			
-			name = lol.riotString(nameAddress)
+			name = process.riotString(nameAddress)
 			if (isVisible && isAlive && player.spells[5].value >= health
 				&& abs(x - player.x) <= 500 && abs(y - player.y) <= 500 && abs(z - player.z) <= 500
-				&& name.contains("crab", true)
+				&& (name.contains("baron", true) || name.contains("crab", true) || name.contains("red", true) || name.contains("blue", true) || name.contains("dragon", true))
 			) {
-				val robot = Robot()
-				val w2s = renderer.worldToScreen(x, y, z)
+				robot.keyPress(70)
+				Thread.sleep(1)
+				robot.keyRelease(70)
+				
+				println("AUTOSMITED $name")
+				/*val w2s = renderer.worldToScreen(x, y, z)
 				val beforeCoord = MouseInfo.getPointerInfo().location
 				robot.mouseMove(w2s.first, w2s.second)
 				robot.keyPress(70)
 				Thread.sleep(1)
-				robot.mouseMove(beforeCoord.x, beforeCoord.y)
-				println("AUTOSMITED ${w2s.first},${w2s.second} name $name")
+				robot.mouseMove(beforeCoord.x, beforeCoord.y)*/
+				//println("AUTOSMITED ${w2s.first},${w2s.second} name $name")
 				//println(this)
 				/*
 				val champion = Champion(address)
@@ -99,6 +102,8 @@ open class Unit(val address: Long) {
 		
 		return buff
 	}
+	
+	val robot = Robot()
 	
 	override fun toString(): String {
 		return "Entity(address=$address, name='$name', team=$team, x=$x, y=$y, z=$z, health=$health, maxHealth=$maxHealth, baseAttack=$baseAttack, bonusAttack=$bonusAttack, armor=$armor, bonusArmor=$bonusArmor, magicResist=$magicResist, duration=$duration, isVisible=$isVisible, objectIndex=$objectIndex, crit=$crit, critMulti=$critMulti, abilityPower=$abilityPower, attackSpeedMulti=$attackSpeedMulti, movementSpeed=$movementSpeed, networkID=$networkID, spawnCount=$spawnCount, isAlive=$isAlive)"

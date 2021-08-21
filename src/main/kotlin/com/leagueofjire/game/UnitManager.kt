@@ -1,51 +1,57 @@
-package org.jire.leagueofjire
+package com.leagueofjire.game
 
+import com.leagueofjire.game.offsets.LViewOffsets
+import com.leagueofjire.game.offsets.Offsets
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongPriorityQueue
 import it.unimi.dsi.fastutil.longs.LongSet
+import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
-import org.jire.leagueofjire.model.Champion
-import org.jire.leagueofjire.unit.Unit
-import org.jire.leagueofjire.model.Renderer
-import org.jire.leagueofjire.offsets.LViewOffsets
-import org.jire.leagueofjire.offsets.Offsets
 import kotlin.math.abs
 
-object ObjectReader {
+object UnitManager {
 	
-	private const val maxObjects = 500
+	private const val MAX_OBJECTS = 500
 	
-	fun read(lol: AttachedProcess, baseAddress: Long, renderer: Renderer, player: Champion): Boolean {
-		val objectManagerOffset = lol.int(baseAddress + Offsets.ObjectManager).toLong()
+	val entityAddresses = LongArray(MAX_OBJECTS)
+	
+	val nodesToVisit: LongPriorityQueue = LongArrayFIFOQueue(MAX_OBJECTS)
+	val visitedNodes: LongSet = LongOpenHashSet(MAX_OBJECTS)
+	
+	val objectMap = arrayOfNulls<Unit>(MAX_OBJECTS)
+	
+	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
+		val objectManagerOffset = process.int(base.address + Offsets.ObjectManager).toLong()
 		if (objectManagerOffset <= 0) return false
 		//println(objectManagerOffset)
 		
-		val objectManager = lol.readPointer(objectManagerOffset, 256)
+		val objectManager = process.readPointer(objectManagerOffset, 256)
 		if (!objectManager.readable()) return false
 		
 		val numMissiles = objectManager.getInt(LViewOffsets.ObjectMapCount)
 		if (numMissiles <= 0) return false
+		
 		val rootNode = objectManager.getInt(LViewOffsets.ObjectMapRoot).toLong()
 		if (rootNode <= 0) return false
 		//println("numMissiles: $numMissiles, rootNode: $rootNode")
 		
-		val nodesToVisit: LongPriorityQueue = LongArrayFIFOQueue().apply { enqueue(rootNode) }
-		val visitedNodes: LongSet = LongOpenHashSet()
+		nodesToVisit.clear()
+		visitedNodes.clear()
 		
-		val entityAddresses = LongArray(4096)
+		nodesToVisit.enqueue(rootNode)
 		
 		var nrObj = 0
 		var reads = 0
-		while (reads < maxObjects && !nodesToVisit.isEmpty) {
+		while (reads < MAX_OBJECTS && !nodesToVisit.isEmpty) {
 			val node = nodesToVisit.dequeueLong()
 			if (node <= 0 || visitedNodes.contains(node)) continue
 			
 			reads++
 			visitedNodes.add(node)
 			
-			val buff = lol.readPointer(node, 0x30)
+			val buff = process.readPointer(node, 0x30)
 			if (!buff.readable()) continue
 			val childNode1 = buff.getInt(0).toLong()
 			val childNode2 = buff.getInt(4).toLong()
@@ -76,9 +82,9 @@ object ObjectReader {
 			//val netId = lol.int(entityAddress + GameObject.ObjNetworkID)
 			
 			val unit = Unit(entityAddress)
-			unit.load(lol, true, renderer, player)
+			unit.update(process, true)
 			
-			//objectMap[entity.networkId] = entity
+			objectMap[i] = unit
 		}
 		
 		return true
