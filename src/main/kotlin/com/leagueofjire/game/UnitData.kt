@@ -1,5 +1,10 @@
 package com.leagueofjire.game
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+
 data class UnitData(
 	val name: String, val healthBarHeight: Float,
 	val baseMoveSpeed: Float,
@@ -14,6 +19,18 @@ data class UnitData(
 	val basicAtkWindup: Float,
 	val tags: Array<String>
 ) {
+	val tagsEnum = tags.map {
+		try {
+			UnitTag.valueOf(it)
+		} catch (iae: IllegalArgumentException) {
+			UnitTag.Unit_
+		}
+	}.distinct()
+	val isChampion = tagsEnum.contains(UnitTag.Unit_Champion)
+	val isJungle = tagsEnum.contains(UnitTag.Unit_Monster_Camp)
+	val isImportantJungle =
+		tagsEnum.contains(UnitTag.Unit_Monster_Large) || tagsEnum.contains(UnitTag.Unit_Monster_Epic)
+	
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
 		if (javaClass != other?.javaClass) return false
@@ -53,4 +70,24 @@ data class UnitData(
 		result = 31 * result + tags.contentHashCode()
 		return result
 	}
+	
+	companion object {
+		lateinit var objectMapper: ObjectMapper
+		
+		lateinit var data: List<UnitData>
+		
+		lateinit var nameToData: Object2ObjectMap<String, UnitData>
+		
+		fun load(file: String = "units.json") {
+			objectMapper = ObjectMapper().registerKotlinModule()
+			data = objectMapper.readValue(
+				UnitData::class.java.getResource(file),
+				objectMapper.typeFactory.constructCollectionType(List::class.java, UnitData::class.java)
+			)
+			nameToData = Object2ObjectOpenHashMap(data.size)
+			data.forEach { nameToData[it.name.lowercase()] = it }
+		}
+		
+	}
+	
 }

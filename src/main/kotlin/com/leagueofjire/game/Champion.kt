@@ -11,7 +11,7 @@ class Champion(address: Long) : Unit(address) {
 	val spells = Array(6) { Spell(it) }
 	val itemSlots = Array(6) { ItemSlot(it) }
 	
-	fun update(process: AttachedProcess, data: Pointer, deep: Boolean = false): Boolean {
+	fun updateChampion(process: AttachedProcess, data: Pointer, deep: Boolean = false): Boolean {
 		return updateSpells(process, data, deep) && updateItems(process)
 	}
 	

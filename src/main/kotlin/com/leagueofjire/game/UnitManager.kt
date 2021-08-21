@@ -1,11 +1,12 @@
 package com.leagueofjire.game
 
+import com.leagueofjire.game.offsets.GameObject
 import com.leagueofjire.game.offsets.LViewOffsets
 import com.leagueofjire.game.offsets.Offsets
-import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet
-import it.unimi.dsi.fastutil.longs.LongPriorityQueue
-import it.unimi.dsi.fastutil.longs.LongSet
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.longs.*
 import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
@@ -20,7 +21,7 @@ object UnitManager {
 	val nodesToVisit: LongPriorityQueue = LongArrayFIFOQueue(MAX_OBJECTS)
 	val visitedNodes: LongSet = LongOpenHashSet(MAX_OBJECTS)
 	
-	val objectMap = arrayOfNulls<Unit>(MAX_OBJECTS)
+	val objectMap: Int2ObjectMap<Unit> = Int2ObjectMaps.synchronize(Int2ObjectOpenHashMap(MAX_OBJECTS))
 	
 	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
 		val objectManagerOffset = process.int(base.address + Offsets.ObjectManager).toLong()
@@ -79,12 +80,11 @@ object UnitManager {
 			if (entityAddress <= 0) continue
 			
 			//println("BRO!! $i is $ptr")
-			//val netId = lol.int(entityAddress + GameObject.ObjNetworkID)
+			val netId = process.int(entityAddress + GameObject.ObjNetworkID)
 			
 			val unit = Unit(entityAddress)
+			objectMap[netId] = unit
 			unit.update(process, true)
-			
-			objectMap[i] = unit
 		}
 		
 		return true

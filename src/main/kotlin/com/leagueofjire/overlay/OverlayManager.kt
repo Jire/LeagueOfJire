@@ -35,7 +35,7 @@ object OverlayManager {
 			GLFW.glfwWindowHint(GLFW.GLFW_DOUBLEBUFFER, GLFW.GLFW_TRUE)
 			setBackBufferConfig(8, 8, 8, 8, 16, 0, 4) // samples 4
 			
-			val fps = 256//Settings.fps.toInt()
+			val fps = 512//Settings.fps.toInt()
 			setForegroundFPS(fps)
 			setIdleFPS(min(30, fps))
 		}

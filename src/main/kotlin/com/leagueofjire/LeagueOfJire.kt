@@ -1,9 +1,6 @@
 package com.leagueofjire
 
-import com.leagueofjire.game.LeagueOfLegendsHook
-import com.leagueofjire.game.LocalPlayer
-import com.leagueofjire.game.Renderer
-import com.leagueofjire.game.UnitManager
+import com.leagueofjire.game.*
 import com.leagueofjire.overlay.Overlay
 import com.leagueofjire.overlay.OverlayManager
 import com.leagueofjire.scripts.ScriptManager
@@ -25,9 +22,12 @@ object LeagueOfJire {
 		priority = Thread.MAX_PRIORITY
 	}
 	
-	private const val CYCLE_MILLIS = 16L
+	private const val CYCLE_MILLIS = 4L
 	
 	private fun cycleLoop(cycleMillis: Long = CYCLE_MILLIS) {
+		UnitData.load()
+		SpellData.load()
+		
 		val (process, base) = LeagueOfLegendsHook.hook()
 		
 		OverlayManager.open()
@@ -47,9 +47,11 @@ object LeagueOfJire {
 	}
 	
 	private fun cycle(process: AttachedProcess, base: AttachedModule): Boolean {
-		return Renderer.update(process, base)
+		return GameTime.update(process, base)
+				&& Renderer.update(process, base)
 				&& UnitManager.update(process, base)
-				//&& LocalPlayer.champion.update(process, base)
+				&& LocalPlayer.update(process, base)
+				&& HoveredObject.update(process, base)
 				&& ScriptManager.run()
 	}
 	

@@ -32,6 +32,9 @@ open class Unit(override val address: Long) : Addressed {
 	var networkID = -1
 	var spawnCount = -1
 	var isAlive = false
+	var attackRange = -1F
+	
+	var data: UnitData? = null
 	
 	fun update(process: AttachedProcess, deep: Boolean = false): Boolean {
 		val data = process.readPointer(address, DATA_SIZE).apply {
@@ -57,6 +60,7 @@ open class Unit(override val address: Long) : Addressed {
 			attackSpeedMulti = getFloat(GameObject.ObjAtkSpeedMulti)
 			movementSpeed = getFloat(GameObject.ObjMoveSpeed)
 			networkID = getInt(GameObject.ObjNetworkID)
+			attackRange = getFloat(GameObject.ObjAtkRange)
 			
 			spawnCount = getInt(GameObject.ObjSpawnCount)
 			isAlive = spawnCount % 2 == 0
@@ -65,15 +69,30 @@ open class Unit(override val address: Long) : Addressed {
 		return !deep || deepUpdate(process, data)
 	}
 	
-	private fun deepUpdate(lol: AttachedProcess, data: Pointer): Boolean {
+	private fun deepUpdate(process: AttachedProcess, data: Pointer): Boolean {
 		val nameAddress = data.getInt(GameObject.ObjName).toLong()
 		if (nameAddress <= 0) return false
 		
-		name = lol.riotString(nameAddress)
-		// TODO: load JSON data
+		name = process.riotString(nameAddress).lowercase()
+		if (name.isNotEmpty()) {
+			val jsonData = UnitData.nameToData[name]
+			this.data = jsonData
+			if (jsonData != null && jsonData.isChampion && this !is Champion /* prevent infinite loop */) {
+				transformToChampion(process, data)
+			}
+		}
 		
 		return true
 	}
+	
+	fun transformToChampion(process: AttachedProcess, data: Pointer = process.readPointer(address, DATA_SIZE)) =
+		Champion(address).apply {
+			name = this@Unit.name
+			this.data = this@Unit.data
+			update(process, false)
+			updateChampion(process, data, true)
+			UnitManager.objectMap[networkID] = this
+		}
 	
 	companion object {
 		

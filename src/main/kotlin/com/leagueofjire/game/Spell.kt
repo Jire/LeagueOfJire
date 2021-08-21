@@ -2,8 +2,11 @@ package com.leagueofjire.game
 
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
+import org.jire.leagueofjire.util.riotString
 
 class Spell(val slot: Int) {
+	
+	val slotEnum = SpellSlot.values[slot]
 	
 	companion object {
 		const val SpellSlotLevel = 0x20L
@@ -17,9 +20,14 @@ class Spell(val slot: Int) {
 	
 	var address = -1L
 	
+	var name = ""
+	
 	var readyAt = -1F
 	var level = -1
 	var value = -1F
+	
+	var type: SummonerSpellType = SummonerSpellType.NONE
+	var data: SpellData? = null
 	
 	fun load(process: AttachedProcess, address: Long, deep: Boolean = false): Boolean {
 		this.address = address
@@ -37,9 +45,15 @@ class Spell(val slot: Int) {
 		val spellInfoPtr = buffer.getInt(SpellSlotSpellInfo).toLong()
 		if (spellInfoPtr <= 0) return false
 		
-		val spellDataPtr = process.int(spellInfoPtr + SpellInfoSpellData)
+		val spellDataPtr = process.int(spellInfoPtr + SpellInfoSpellData).toLong()
 		if (spellDataPtr <= 0) return false
-		val spellNamePtr = process.int(spellDataPtr + SpellDataSpellName)
+		
+		val spellNamePtr = process.int(spellDataPtr + SpellDataSpellName).toLong()
+		if (spellNamePtr <= 0) return false
+		
+		name = process.riotString(spellNamePtr).lowercase()
+		type = SummonerSpellType.typeToSpell[name] ?: SummonerSpellType.NONE
+		data = SpellData.nameToData[name]
 		
 		return deepLoad(process, address)
 	}

@@ -72,4 +72,30 @@ object Renderer {
 		return outX to outY
 	}
 	
+	fun isScreenPointOnScreen(x: Float, y: Float, offsetX: Float, offsetY: Float) =
+		x > -offsetX && x < (width + offsetX) && y > -offsetY && y < (height + offsetY)
+	
+	fun isWorldPointOnScreen(x: Float, y: Float, z: Float, offsetX: Float, offsetY: Float): Boolean {
+		val w2s = worldToScreen(x, y, z)
+		return isScreenPointOnScreen(w2s.first, w2s.second, offsetX, offsetY)
+	}
+	
+	fun distanceToMinimap(dist: Float, wSizeX: Float, wSizeY: Float) = (dist / 15000F) * wSizeX
+	
+	fun worldToMinimap(
+		x: Float,
+		y: Float,
+		z: Float,
+		wPosX: Float,
+		wPosY: Float,
+		wSizeX: Float,
+		wSizeY: Float
+	): Pair<Float, Float> {
+		var rx = x / 15000F
+		var ry = z / 15000F
+		rx = wPosX + rx * wSizeX
+		ry = wPosY + wSizeY - (ry * wSizeY)
+		return rx to ry
+	}
+	
 }
