@@ -8,7 +8,7 @@ object Offsets {
 	const val ZoomClass = 0x2fbeae8L
 	const val ViewMatrix = 0x2fedac0L
 	const val NetClient = 0x2fd11b4L
-	const val UnderMouseObject = 0x02fc9ab8L/*0x2fc9ab8L*/
+	const val UnderMouseObject = 0x2FBEA88/*0x2fc9ab8L*/
 	const val Minimap = 0x2fe844cL
 	const val MinimapObject = 0x2fc969cL
 	const val HudInstance = 0x172ca20L

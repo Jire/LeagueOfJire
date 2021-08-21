@@ -9,8 +9,6 @@ object LeagueOfJire {
 	
 	@JvmStatic
 	fun main(args: Array<String>) {
-		println(Offsets.UnderMouseObject - 0x02FB51E8)
-		
 		val hook = LeagueOfLegendsHook.hook()
 		val baseAddress = hook.baseAddress
 		println("BASE MODULE OFFSET: $baseAddress")
@@ -26,7 +24,7 @@ object LeagueOfJire {
 				val player = FindLocalPlayer.find(lol, baseAddress, renderer) ?: return@measureTimeMillis
 				//println(renderer.worldToScreen(player.x, player.y, player.z))
 				ObjectReader.read(lol, baseAddress, renderer, player)
-				//FindHoveredObject.find(lol, baseAddress)
+				FindHoveredObject.find(lol, baseAddress, renderer, player)
 			}
 			val sleep = 16 - elapsed
 			if (sleep > 0) {

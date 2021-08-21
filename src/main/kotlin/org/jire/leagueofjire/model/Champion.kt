@@ -5,8 +5,9 @@ import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
 import org.jire.leagueofjire.offsets.GameObject
 import org.jire.leagueofjire.offsets.LViewOffsets
+import org.jire.leagueofjire.unit.Unit
 
-class Champion(address: Long) : Entity(address) {
+class Champion(address: Long) : Unit(address) {
 	
 	val spells = Array(6) { Spell(it) }
 	val itemSlots = Array(6) { ItemSlot(it) }

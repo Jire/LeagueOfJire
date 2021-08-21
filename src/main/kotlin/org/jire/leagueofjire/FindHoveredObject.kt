@@ -3,7 +3,7 @@ package org.jire.leagueofjire
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
 import org.jire.leagueofjire.model.Champion
-import org.jire.leagueofjire.model.Entity
+import org.jire.leagueofjire.unit.Unit
 import org.jire.leagueofjire.model.Renderer
 import org.jire.leagueofjire.offsets.Offsets
 
@@ -20,7 +20,7 @@ object FindHoveredObject {
 		println("netID: $netID")*/
 		// grab using objectMap based off the netID...
 		
-		val ent = Entity(addrObj)
+		val ent = Unit(addrObj)
 		ent.load(lol, true, renderer, player)
 		println("yo ${ent.name} !! :)")
 	}

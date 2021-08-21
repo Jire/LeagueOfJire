@@ -7,9 +7,8 @@ import it.unimi.dsi.fastutil.longs.LongSet
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
 import org.jire.leagueofjire.model.Champion
-import org.jire.leagueofjire.model.Entity
+import org.jire.leagueofjire.unit.Unit
 import org.jire.leagueofjire.model.Renderer
-import org.jire.leagueofjire.offsets.GameObject
 import org.jire.leagueofjire.offsets.LViewOffsets
 import org.jire.leagueofjire.offsets.Offsets
 import kotlin.math.abs
@@ -76,8 +75,8 @@ object ObjectReader {
 			//println("BRO!! $i is $ptr")
 			//val netId = lol.int(entityAddress + GameObject.ObjNetworkID)
 			
-			val entity = Entity(entityAddress)
-			entity.load(lol, true, renderer, player)
+			val unit = Unit(entityAddress)
+			unit.load(lol, true, renderer, player)
 			
 			//objectMap[entity.networkId] = entity
 		}

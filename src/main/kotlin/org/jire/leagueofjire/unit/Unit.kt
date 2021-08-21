@@ -1,16 +1,16 @@
-package org.jire.leagueofjire.model
+package org.jire.leagueofjire.unit
 
 import org.jire.kna.Pointer
 import org.jire.kna.attach.AttachedProcess
+import org.jire.leagueofjire.model.Champion
+import org.jire.leagueofjire.model.Renderer
 import org.jire.leagueofjire.offsets.GameObject
-import org.jire.leagueofjire.util.getRiotString
 import org.jire.leagueofjire.util.riotString
 import java.awt.MouseInfo
 import java.awt.Robot
-import java.awt.Toolkit
 import kotlin.math.abs
 
-open class Entity(val address: Long) {
+open class Unit(val address: Long) {
 	
 	companion object {
 		const val sizeBuff = 0x4000L
