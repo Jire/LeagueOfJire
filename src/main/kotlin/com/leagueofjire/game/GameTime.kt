@@ -1,9 +1,9 @@
 package com.leagueofjire.game
 
+import com.leagueofjire.game.offsets.Offsets
 import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.float
-import org.jire.leagueofjire.offsets.Offsets
 
 object GameTime {
 	

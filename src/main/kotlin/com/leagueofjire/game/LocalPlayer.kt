@@ -8,7 +8,7 @@ import org.jire.kna.int
 
 object LocalPlayer {
 	
-	lateinit var champion: Champion
+	lateinit var localPlayer: Unit
 	
 	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
 		val playerAddress = process.int(base.address + Offsets.LocalPlayer).toLong()
@@ -17,13 +17,9 @@ object LocalPlayer {
 		val networkID = process.int(playerAddress + GameObject.ObjNetworkID)
 		if (networkID < 0) return false
 		
-		val unit = UnitManager.objectMap[networkID] ?: return false
-		champion = if (unit is Champion) {
-			unit
-		} else {
-			println("our player wasn't champion... fixing that rn")
-			unit.transformToChampion(process)
-		}
+		val unit = UnitManager.units[networkID] ?: return false
+		localPlayer = unit
+		
 		return true
 	}
 	

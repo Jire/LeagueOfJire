@@ -3,34 +3,42 @@ package com.leagueofjire.game
 import org.jire.kna.Pointer
 import org.jire.kna.ReadableSource
 
-object RiotStrings {
+class RiotStrings {
 	
-	const val DEFAULT_STRING = ""
-	const val DEFAULT_STRING_LENGTH = 50
+	companion object {
+		const val DEFAULT_STRING = ""
+		const val DEFAULT_STRING_LENGTH = 50
+		
+		private val threadLocal = ThreadLocal.withInitial { RiotStrings() }
+		
+		operator fun invoke(): RiotStrings = threadLocal.get()
+	}
+	
+	private val byteArray = ByteArray(DEFAULT_STRING_LENGTH)
+	private val pointer = Pointer.alloc(DEFAULT_STRING_LENGTH.toLong())
+	private val stringBuilder = StringBuilder()
 	
 	fun byteArrayToRiotString(byteArray: ByteArray): String {
-		val sb = StringBuilder()
+		stringBuilder.setLength(0)
 		for (b in byteArray) {
 			val c = b.toInt() and 0xFF
 			if (c == 0) break
 			if (c > Byte.MAX_VALUE) return ""
-			sb.append(c.toChar())
+			stringBuilder.append(c.toChar().lowercaseChar())
 		}
-		return sb.toString()
+		return stringBuilder.toString()
 	}
 	
-	fun Pointer.getRiotString(offset: Long = 0, bytes: Int = RiotStrings.DEFAULT_STRING_LENGTH): String {
-		if (!readable()) return RiotStrings.DEFAULT_STRING
+	fun getRiotString(offset: Long = 0, bytes: Int = DEFAULT_STRING_LENGTH): String {
+		if (!pointer.readable()) return DEFAULT_STRING
 		
-		val data = ByteArray(bytes)
-		read(offset, data, 0, data.size)
-		
-		return RiotStrings.byteArrayToRiotString(data)
+		pointer.read(offset, byteArray, 0, bytes)
+		return byteArrayToRiotString(byteArray)
 	}
 	
-	fun ReadableSource.riotString(address: Long, bytes: Int = RiotStrings.DEFAULT_STRING_LENGTH): String {
-		val pointer = readPointer(address, bytes.toLong())
-		return pointer.getRiotString(0, bytes)
+	fun riotString(readableSource: ReadableSource, address: Long, bytes: Int = DEFAULT_STRING_LENGTH): String {
+		if (!readableSource.read(address, pointer, bytes.toLong())) return DEFAULT_STRING
+		return getRiotString(0, bytes)
 	}
 	
 }

@@ -2,6 +2,7 @@ package com.leagueofjire.overlay
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
+import com.leagueofjire.LeagueOfJire
 import com.leagueofjire.native.User32
 import com.leagueofjire.overlay.transparency.AccentFlags
 import com.leagueofjire.overlay.transparency.AccentStates
@@ -31,15 +32,15 @@ object OverlayManager {
 			setResizable(false)
 			setDecorated(false)
 			useVsync(false)
-			GLFW.glfwSwapInterval(0)
-			GLFW.glfwWindowHint(GLFW.GLFW_DOUBLEBUFFER, GLFW.GLFW_TRUE)
-			setBackBufferConfig(8, 8, 8, 8, 16, 0, 4) // samples 4
+			//GLFW.glfwSwapInterval(0)
+			//GLFW.glfwWindowHint(GLFW.GLFW_DOUBLEBUFFER, GLFW.GLFW_TRUE)
+			setBackBufferConfig(8, 8, 8, 8, 16, 0, 0) // samples 4
 			
-			val fps = 512//Settings.fps.toInt()
+			val fps = 165//Settings.fps.toInt()
 			setForegroundFPS(fps)
 			setIdleFPS(min(30, fps))
 		}
-		thread(name = "Overlay") {
+		thread(name = "LeagueOfJire", priority = Thread.MAX_PRIORITY) {
 			Lwjgl3Application(overlay, config)
 		}
 	}

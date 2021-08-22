@@ -34,4 +34,6 @@ dependencies {
 	implementation("com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop")
 	implementation("com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop")
 	implementation("com.badlogicgames.gdx:gdx-freetype:$gdxVersion")
+	
+	implementation("net.openhft:chronicle-core:2.20.127.1")
 }

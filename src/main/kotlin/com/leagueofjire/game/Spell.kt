@@ -1,8 +1,8 @@
 package com.leagueofjire.game
 
+import org.jire.kna.Pointer
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
-import org.jire.leagueofjire.util.riotString
 
 class Spell(val slot: Int) {
 	
@@ -27,22 +27,24 @@ class Spell(val slot: Int) {
 	var value = -1F
 	
 	var type: SummonerSpellType = SummonerSpellType.NONE
-	var data: SpellData? = null
+	var data: SpellInfo = SpellInfo.unknownSpell
 	
-	fun load(process: AttachedProcess, address: Long, deep: Boolean = false): Boolean {
+	fun load(process: AttachedProcess, address: Long, data: Pointer, deep: Boolean = false): Boolean {
 		this.address = address
 		if (address <= 0) return false
 		
-		val buffer = process.readPointer(address, 0x150)
-		if (!buffer.readable()) return false
+		process.read(address, data, 0x150)
+		if (!data.readable()) return false
 		
-		readyAt = buffer.getFloat(SpellSlotTime)
-		level = buffer.getInt(SpellSlotLevel)
-		value = buffer.getFloat(SpellSlotDamage)
+		readyAt = data.getFloat(SpellSlotTime)
+		level = data.getInt(SpellSlotLevel)
+		value = data.getFloat(SpellSlotDamage)
 		
-		//println("slot $slot, ready=$readyAt, level=$level, value=$value")
-		
-		val spellInfoPtr = buffer.getInt(SpellSlotSpellInfo).toLong()
+		return !deep || deepLoad(process, data)
+	}
+	
+	private fun deepLoad(process: AttachedProcess, data: Pointer): Boolean {
+		val spellInfoPtr = data.getInt(SpellSlotSpellInfo).toLong()
 		if (spellInfoPtr <= 0) return false
 		
 		val spellDataPtr = process.int(spellInfoPtr + SpellInfoSpellData).toLong()
@@ -51,14 +53,9 @@ class Spell(val slot: Int) {
 		val spellNamePtr = process.int(spellDataPtr + SpellDataSpellName).toLong()
 		if (spellNamePtr <= 0) return false
 		
-		name = process.riotString(spellNamePtr).lowercase()
+		name = RiotStrings().riotString(process, spellNamePtr)
 		type = SummonerSpellType.typeToSpell[name] ?: SummonerSpellType.NONE
-		data = SpellData.nameToData[name]
-		
-		return deepLoad(process, address)
-	}
-	
-	private fun deepLoad(process: AttachedProcess, address: Long): Boolean {
+		this.data = SpellInfo.nameToData[name] ?: SpellInfo.unknownSpell
 		return true
 	}
 	

@@ -1,14 +1,18 @@
 package com.leagueofjire.game
 
-import com.leagueofjire.game.RiotStrings.riotString
 import com.leagueofjire.game.offsets.GameObject
+import com.leagueofjire.game.offsets.LViewOffsets
+import com.leagueofjire.util.free
 import org.jire.kna.Addressed
 import org.jire.kna.Pointer
 import org.jire.kna.attach.AttachedProcess
+import org.jire.kna.int
 
 open class Unit(override val address: Long) : Addressed {
 	
 	var name = ""
+	
+	var lastVisibleAt = -1F
 	
 	var team = -1
 	var x = -1F
@@ -34,12 +38,13 @@ open class Unit(override val address: Long) : Addressed {
 	var isAlive = false
 	var attackRange = -1F
 	
-	var data: UnitData? = null
+	var info: UnitInfo = UnitInfo.unknownInfo
 	
-	fun update(process: AttachedProcess, deep: Boolean = false): Boolean {
-		val data = process.readPointer(address, DATA_SIZE).apply {
-			if (!readable()) return false
-			
+	fun update(process: AttachedProcess, data: Pointer, deep: Boolean = false): Boolean {
+		process.read(address, data, DATA_SIZE)
+		if (!data.readable()) return false
+		
+		data.run {
 			team = getShort(GameObject.ObjTeam).toInt()
 			x = getFloat(GameObject.ObjPos)
 			y = getFloat(GameObject.ObjPos + 4)
@@ -66,37 +71,83 @@ open class Unit(override val address: Long) : Addressed {
 			isAlive = spawnCount % 2 == 0
 		}
 		
-		return !deep || deepUpdate(process, data)
+		if (deep) deepUpdate(process, data)
+		
+		if (info.isChampion) {
+			updateChampion(process, data, deep)
+		} else if (info == UnitInfo.unknownInfo) {
+			// try reading missile extension
+		}
+		
+		return true
 	}
 	
 	private fun deepUpdate(process: AttachedProcess, data: Pointer): Boolean {
 		val nameAddress = data.getInt(GameObject.ObjName).toLong()
 		if (nameAddress <= 0) return false
 		
-		name = process.riotString(nameAddress).lowercase()
+		name = RiotStrings().riotString(process, nameAddress)
 		if (name.isNotEmpty()) {
-			val jsonData = UnitData.nameToData[name]
-			this.data = jsonData
-			if (jsonData != null && jsonData.isChampion && this !is Champion /* prevent infinite loop */) {
-				transformToChampion(process, data)
-			}
+			info = UnitInfo.nameToInfo[name] ?: UnitInfo.unknownInfo
 		}
 		
 		return true
 	}
 	
-	fun transformToChampion(process: AttachedProcess, data: Pointer = process.readPointer(address, DATA_SIZE)) =
-		Champion(address).apply {
-			name = this@Unit.name
-			this.data = this@Unit.data
-			update(process, false)
-			updateChampion(process, data, true)
-			UnitManager.objectMap[networkID] = this
+	var spells: Array<Spell> = defaultSpells
+	var itemSlots: Array<ItemSlot> = defaultItemSlots
+	
+	fun updateChampion(process: AttachedProcess, data: Pointer, deep: Boolean = false): Boolean {
+		return updateSpells(process, data, deep) && updateItems(process)
+	}
+	
+	private fun updateSpells(process: AttachedProcess, data: Pointer, deep: Boolean): Boolean {
+		if (spells === defaultSpells) spells = Array(6) { Spell(it) }
+		val spellData = Pointer.alloc(0x150)
+		for (spell in spells) {
+			val address = data.getInt(GameObject.ObjSpellBook + (spell.slot * 4)).toLong()
+			if (address <= 0) return false
+			if (!spell.load(process, address, spellData, deep)) return false
 		}
+		return true
+	}
+	
+	private fun updateItems(process: AttachedProcess): Boolean {
+		val itemsAddress = process.int(address + GameObject.ObjItemList).toLong()
+		if (itemsAddress <= 0) return false
+		
+		val itemsData = Pointer.alloc(0x100)
+		process.read(itemsAddress, itemsData, 0x100)
+		if (!itemsData.readable()) return false
+		
+		try {
+			if (itemSlots === defaultItemSlots) itemSlots = Array(6) { ItemSlot(it) }
+			for (slot in itemSlots) {
+				slot.isEmpty = true
+				
+				val itemPtr = itemsData.getInt((slot.slot * 0x10) + LViewOffsets.ItemListItem)
+				if (itemPtr <= 0) continue
+				
+				val itemInfoPtr = process.int(itemPtr + LViewOffsets.ItemInfo).toLong()
+				if (itemInfoPtr <= 0) continue
+				
+				val id = process.int(itemInfoPtr + LViewOffsets.ItemInfoId)
+				slot.isEmpty = false
+				// slot.stats = GetItemInfoById(id)
+			}
+			
+			return true
+		} finally {
+			itemsData.free(0x100)
+		}
+	}
 	
 	companion object {
 		
 		private const val DATA_SIZE = 0x4000L
+		
+		private val defaultSpells = emptyArray<Spell>()
+		private val defaultItemSlots = emptyArray<ItemSlot>()
 		
 	}
 	

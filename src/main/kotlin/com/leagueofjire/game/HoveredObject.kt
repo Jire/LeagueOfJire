@@ -18,7 +18,7 @@ object HoveredObject {
 		val networkID = process.int(addrObj + GameObject.ObjNetworkID)
 		if (networkID < 0) return false
 		
-		hovered = UnitManager.objectMap[networkID]
+		hovered = UnitManager.units[networkID]
 		return true
 	}
 

@@ -21,7 +21,10 @@ object Renderer {
 		if (renderBase <= 0) return false
 		
 		val data = process.readPointer(renderBase, 128)
-		if (!data.readable()) return false
+		if (!data.readable()) {
+			// size small enough to be cached.
+			return false
+		}
 		
 		width = data.getInt(LViewOffsets.RendererWidth)
 		height = data.getInt(LViewOffsets.RendererHeight)
@@ -52,7 +55,7 @@ object Renderer {
 		return true
 	}
 	
-	fun worldToScreen(x: Float, y: Float, z: Float): Pair<Float, Float> {
+	fun worldToScreen(x: Float, y: Float, z: Float): Vector2D {
 		val clipCoordsX = x * viewProjMatrix[0] + y * viewProjMatrix[4] + z * viewProjMatrix[8] + viewProjMatrix[12]
 		val clipCoordsY = x * viewProjMatrix[1] + y * viewProjMatrix[5] + z * viewProjMatrix[9] + viewProjMatrix[13]
 		//var clipCoordsZ = x * viewProjMatrix[2] + y * viewProjMatrix[6] + z * viewProjMatrix[10] + viewProjMatrix[14]
@@ -69,7 +72,7 @@ object Renderer {
 		
 		val outX = (screenX / 2F * middleX) + (middleX + screenX / 2F)
 		val outY = -(screenY / 2F * middleY) + (middleY + screenY / 2F)
-		return outX to outY
+		return Vector2D(outX, outY)
 	}
 	
 	fun isScreenPointOnScreen(x: Float, y: Float, offsetX: Float, offsetY: Float) =
@@ -77,7 +80,7 @@ object Renderer {
 	
 	fun isWorldPointOnScreen(x: Float, y: Float, z: Float, offsetX: Float, offsetY: Float): Boolean {
 		val w2s = worldToScreen(x, y, z)
-		return isScreenPointOnScreen(w2s.first, w2s.second, offsetX, offsetY)
+		return isScreenPointOnScreen(w2s.x, w2s.y, offsetX, offsetY)
 	}
 	
 	fun distanceToMinimap(dist: Float, wSizeX: Float, wSizeY: Float) = (dist / 15000F) * wSizeX
