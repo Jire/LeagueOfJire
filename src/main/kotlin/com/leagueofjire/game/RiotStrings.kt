@@ -3,7 +3,7 @@ package com.leagueofjire.game
 import org.jire.kna.Pointer
 import org.jire.kna.ReadableSource
 
-class RiotStrings {
+class RiotStrings private constructor() {
 	
 	companion object {
 		const val DEFAULT_STRING = ""

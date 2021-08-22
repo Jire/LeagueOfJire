@@ -27,20 +27,23 @@ class Spell(val slot: Int) {
 	var value = -1F
 	
 	var type: SummonerSpellType = SummonerSpellType.NONE
-	var data: SpellInfo = SpellInfo.unknownSpell
+	var info: SpellInfo = SpellInfo.unknownSpell
 	
-	fun load(process: AttachedProcess, address: Long, data: Pointer, deep: Boolean = false): Boolean {
+	fun load(process: AttachedProcess, address: Long, deep: Boolean = false): Boolean {
 		this.address = address
 		if (address <= 0) return false
 		
-		process.read(address, data, 0x150)
+		val data = Pointer.alloc(0x150)
+		if (!process.read(address, data, 0x150)) return false
 		if (!data.readable()) return false
 		
 		readyAt = data.getFloat(SpellSlotTime)
 		level = data.getInt(SpellSlotLevel)
 		value = data.getFloat(SpellSlotDamage)
 		
-		return !deep || deepLoad(process, data)
+		// always cuz champions like nidalee that switch spells
+		deepLoad(process, data)
+		return true
 	}
 	
 	private fun deepLoad(process: AttachedProcess, data: Pointer): Boolean {
@@ -55,7 +58,7 @@ class Spell(val slot: Int) {
 		
 		name = RiotStrings().riotString(process, spellNamePtr)
 		type = SummonerSpellType.typeToSpell[name] ?: SummonerSpellType.NONE
-		this.data = SpellInfo.nameToData[name] ?: SpellInfo.unknownSpell
+		this.info = SpellInfo.nameToData[name] ?: SpellInfo.unknownSpell
 		return true
 	}
 	

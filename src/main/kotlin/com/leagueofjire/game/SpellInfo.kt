@@ -21,16 +21,12 @@ data class SpellInfo(
 	val travelTime: Float,
 	val projectDestination: Boolean
 ) {
-	val hasIcon = icon.isNotBlank()
+	val hasIcon = icon.isNotEmpty()
 	val loadIcon by lazy(LazyThreadSafetyMode.NONE) {
-		Texture(
-			Pixmap(
-				Gdx2DPixmap(
-					SpellInfo::class.java.getResourceAsStream("icons_spells/${icon.lowercase()}.png"),
-					Gdx2DPixmap.GDX2D_FORMAT_RGBA4444
-				)
-			)
-		)
+		if (!hasIcon) return@lazy null
+		val resource = SpellInfo::class.java.getResourceAsStream("icons_spells/${icon.lowercase()}.png")
+			?: return@lazy null
+		Texture(Pixmap(Gdx2DPixmap(resource, Gdx2DPixmap.GDX2D_FORMAT_RGBA4444)))
 	}
 	
 	companion object {

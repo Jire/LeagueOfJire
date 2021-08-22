@@ -117,7 +117,7 @@ object UnitManager {
 		if (objectManagerOffset <= 0) return false
 		
 		val objectManager = Pointer.alloc(256)
-		process.read(objectManagerOffset, objectManager, 256)
+		if (!process.read(objectManagerOffset, objectManager, 256)) return false
 		if (!objectManager.readable()) return false
 		
 		try {

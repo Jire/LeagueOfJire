@@ -41,7 +41,7 @@ open class Unit(override val address: Long) : Addressed {
 	var info: UnitInfo = UnitInfo.unknownInfo
 	
 	fun update(process: AttachedProcess, data: Pointer, deep: Boolean = false): Boolean {
-		process.read(address, data, DATA_SIZE)
+		if (!process.read(address, data, DATA_SIZE)) return false
 		if (!data.readable()) return false
 		
 		data.run {
@@ -103,11 +103,10 @@ open class Unit(override val address: Long) : Addressed {
 	
 	private fun updateSpells(process: AttachedProcess, data: Pointer, deep: Boolean): Boolean {
 		if (spells === defaultSpells) spells = Array(6) { Spell(it) }
-		val spellData = Pointer.alloc(0x150)
 		for (spell in spells) {
 			val address = data.getInt(GameObject.ObjSpellBook + (spell.slot * 4)).toLong()
 			if (address <= 0) return false
-			if (!spell.load(process, address, spellData, deep)) return false
+			if (!spell.load(process, address, deep)) return false
 		}
 		return true
 	}
@@ -117,7 +116,7 @@ open class Unit(override val address: Long) : Addressed {
 		if (itemsAddress <= 0) return false
 		
 		val itemsData = Pointer.alloc(0x100)
-		process.read(itemsAddress, itemsData, 0x100)
+		if (!process.read(itemsAddress, itemsData, 0x100)) return false
 		if (!itemsData.readable()) return false
 		
 		try {

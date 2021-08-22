@@ -12,6 +12,8 @@ import com.leagueofjire.game.*
 import com.leagueofjire.game.Unit
 import com.leagueofjire.native.User32
 import com.leagueofjire.overlay.OverlayManager.myHWND
+import com.sun.jna.Pointer
+import com.sun.jna.platform.win32.WinDef
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
@@ -30,6 +32,7 @@ object Overlay : ApplicationAdapter() {
 	lateinit var shapeRenderer: ShapeRenderer
 	lateinit var textRenderer: BitmapFont
 	
+	lateinit var window: WinDef.HWND
 	lateinit var process: AttachedProcess
 	lateinit var base: AttachedModule
 	
@@ -46,23 +49,25 @@ object Overlay : ApplicationAdapter() {
 	
 	private fun useUnit(unit: Unit) = unit.run {
 		if (!isVisible || !isAlive || !info.isChampion || name.isEmpty()) return
-		//val w2s = Renderer.worldToScreen(x, y, z)
-		//textRenderer.color = Color.WHITE
-		//textRenderer.draw(batch, data.name, w2s.first, w2s.second)
-		//textRenderer.color = Color.YELLOW
-		//textRenderer.draw(batch, "HP: ${health.toInt()}/${maxHealth.toInt()}", w2s.first, w2s.second + 20)
+		
+		val w2s = Renderer.worldToScreen(x, y, z - info.healthBarHeight)
+		textRenderer.color = Color.WHITE
+		textRenderer.draw(batch, name, w2s.x, w2s.y)
+		
 		val scale = 32F
 		var xOff = scale * -2
 		for (spell in spells) {
-			val spellData = spell.data ?: continue
-			val w2s = Renderer.worldToScreen(x, y, z - info.healthBarHeight)
+			val spellData = spell.info
+			if (spellData === SpellInfo.unknownSpell) continue
+			val icon = spellData.loadIcon ?: continue
 			val tx = w2s.x + xOff
 			val ty = w2s.y
 			val ready = GameTime.gameTime >= spell.readyAt
+			
 			val lit = 0.8F
 			val dimmed = lit / 2
 			if (!ready) batch.setColor(dimmed, dimmed, dimmed, 1F) // dim
-			batch.draw(spellData.loadIcon, tx - scale, ty, scale, scale, 0, 0, 64, 64, false, true)
+			batch.draw(icon, tx - scale, ty, scale, scale, 0, 0, 64, 64, false, true)
 			batch.setColor(lit, lit, lit, 1F)
 			if (!ready) {
 				val remaining = spell.readyAt - GameTime.gameTime
@@ -76,7 +81,6 @@ object Overlay : ApplicationAdapter() {
 			}
 			xOff += scale
 		}
-		//textRenderer.draw(batch, "HP: ${health.toInt()}/${maxHealth.toInt()}", w2s.first, w2s.second + 20)
 	}
 	
 	private fun runPlugins() {
@@ -109,7 +113,9 @@ object Overlay : ApplicationAdapter() {
 	private fun createCheatComponents() {
 		UnitInfo.load()
 		SpellInfo.load()
+		
 		val hook = LeagueOfLegendsHook.hook()
+		window = hook.window
 		process = hook.process
 		base = hook.baseModule
 	}
@@ -146,6 +152,8 @@ object Overlay : ApplicationAdapter() {
 			makeUndecorated(myHWND)
 			makeTransparent(myHWND)
 			makeClickthrough(myHWND)
+			
+			makeTransparent(Pointer.nativeValue(window.pointer))
 			
 			opened = true
 		}

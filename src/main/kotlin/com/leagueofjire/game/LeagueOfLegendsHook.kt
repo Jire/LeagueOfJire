@@ -2,6 +2,7 @@ package com.leagueofjire.game
 
 import com.leagueofjire.native.DebugPrivileges
 import com.leagueofjire.native.Win32Exceptions
+import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.ptr.IntByReference
 import org.jire.kna.attach.Attach
 import org.jire.kna.attach.AttachedModule
@@ -10,7 +11,11 @@ import org.jire.kna.attach.windows.WindowsAttachAccess
 import org.jire.kna.attach.windows.WindowsAttachedProcess
 import com.sun.jna.platform.win32.User32.INSTANCE as User32
 
-data class LeagueOfLegendsHook(val process: AttachedProcess, val baseModule: AttachedModule) {
+data class LeagueOfLegendsHook(
+	val window: WinDef.HWND,
+	val process: AttachedProcess,
+	val baseModule: AttachedModule
+) {
 	
 	companion object {
 		
@@ -33,7 +38,7 @@ data class LeagueOfLegendsHook(val process: AttachedProcess, val baseModule: Att
 			val modules = process.modules(true)
 			val baseModule = modules.byName(baseModuleName)!!
 			
-			return LeagueOfLegendsHook(process, baseModule)
+			return LeagueOfLegendsHook(window, process, baseModule)
 		}
 		
 	}
