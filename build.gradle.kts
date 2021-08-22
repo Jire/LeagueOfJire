@@ -1,6 +1,7 @@
 plugins {
-	kotlin("jvm") version "1.5.10"
+	kotlin("jvm") version "1.5.21"
 	java
+	application
 }
 
 group = "com.leagueofjire"
@@ -16,6 +17,10 @@ repositories {
 
 dependencies {
 	implementation(kotlin("stdlib"))
+	implementation(kotlin("reflect"))
+	implementation(kotlin("scripting-common"))
+	implementation(kotlin("scripting-jvm"))
+	implementation(kotlin("scripting-jvm-host"))
 	
 	implementation("net.java.dev.jna:jna:$")
 	implementation("net.java.dev.jna:jna-platform:$jnaVersion")
@@ -36,4 +41,19 @@ dependencies {
 	implementation("com.badlogicgames.gdx:gdx-freetype:$gdxVersion")
 	
 	implementation("net.openhft:chronicle-core:2.20.127.1")
+	
+	implementation("io.github.classgraph:classgraph:4.8.115")
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
+}
+
+application {
+	mainClass.set("com.leagueofjire.LeagueOfJire")
+}
+
+sourceSets.main {
+	java.srcDirs("src/main/kotlin"/*, "scripts"*/)
 }

@@ -3,22 +3,31 @@ package com.leagueofjire.overlay
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx.gl
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.utils.ScreenUtils
 import com.leagueofjire.game.*
 import com.leagueofjire.game.Unit
 import com.leagueofjire.native.User32
 import com.leagueofjire.overlay.OverlayManager.myHWND
+import com.leagueofjire.scripts.JireScriptCompilationConfiguration
+import com.leagueofjire.scripts.JireScriptEvaluationConfiguration
+import com.leagueofjire.scripts.cdtracker.CooldownTracker
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.WinDef
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import it.unimi.dsi.fastutil.objects.ObjectList
 import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
+import java.io.File
 import java.util.concurrent.ThreadLocalRandom
-import kotlin.math.roundToInt
+import kotlin.script.experimental.api.EvaluationResult
+import kotlin.script.experimental.api.ResultWithDiagnostics
+import kotlin.script.experimental.host.toScriptSource
+import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 
 object Overlay : ApplicationAdapter() {
 	
@@ -36,6 +45,23 @@ object Overlay : ApplicationAdapter() {
 	lateinit var process: AttachedProcess
 	lateinit var base: AttachedModule
 	
+	fun loadScripts() {
+		if (true) {
+			CooldownTracker.init()
+			return
+		}
+		val files = File("scripts").listFiles()!!
+		for (file in files) evalFile(file)
+	}
+	
+	fun evalFile(scriptFile: File): ResultWithDiagnostics<EvaluationResult> {
+		return BasicJvmScriptingHost().eval(
+			scriptFile.readText().toScriptSource(),
+			JireScriptCompilationConfiguration,
+			JireScriptEvaluationConfiguration
+		)
+	}
+	
 	private fun updateGameState() {
 		GameTime.update(process, base)
 		Renderer.update(process, base)
@@ -47,47 +73,20 @@ object Overlay : ApplicationAdapter() {
 		// get map, summoner's rift / howling etc.
 	}
 	
-	private fun useUnit(unit: Unit) = unit.run {
-		if (!isVisible || !isAlive || !info.isChampion || name.isEmpty()) return
-		
-		val w2s = Renderer.worldToScreen(x, y, z - info.healthBarHeight)
-		textRenderer.color = Color.WHITE
-		textRenderer.draw(batch, name, w2s.x, w2s.y)
-		
-		val scale = 32F
-		var xOff = scale * -2
-		for (spell in spells) {
-			val spellData = spell.info
-			if (spellData === SpellInfo.unknownSpell) continue
-			val icon = spellData.loadIcon ?: continue
-			val tx = w2s.x + xOff
-			val ty = w2s.y
-			val ready = GameTime.gameTime >= spell.readyAt
-			
-			val lit = 0.8F
-			val dimmed = lit / 2
-			if (!ready) batch.setColor(dimmed, dimmed, dimmed, 1F) // dim
-			batch.draw(icon, tx - scale, ty, scale, scale, 0, 0, 64, 64, false, true)
-			batch.setColor(lit, lit, lit, 1F)
-			if (!ready) {
-				val remaining = spell.readyAt - GameTime.gameTime
-				textRenderer.color = Color.WHITE
-				textRenderer.draw(
-					batch,
-					remaining.roundToInt().toString(),
-					tx - scale + (scale / 4) - (scale / 10),
-					ty + (scale / 2) + (scale / 10)
-				)
-			}
-			xOff += scale
-		}
+	private val bodies: ObjectList<Unit.() -> kotlin.Unit> = ObjectArrayList()
+	
+	operator fun invoke(body: Unit.() -> kotlin.Unit) {
+		bodies.add(body)
 	}
 	
 	private fun runPlugins() {
 		batch.begin()
 		
-		for (unit in Int2ObjectMaps.fastIterable(UnitManager.units))
-			useUnit(unit.value)
+		for (entry in Int2ObjectMaps.fastIterable(UnitManager.units)) {
+			val unit = entry.value
+			for (i in 0..bodies.lastIndex)
+				bodies[i](unit)
+		}
 		
 		batch.end()
 	}
@@ -95,22 +94,18 @@ object Overlay : ApplicationAdapter() {
 	override fun render() {
 		updateGameState()
 		
-		gl.apply {
-			glEnable(GL20.GL_BLEND)
-			glDisable(GL20.GL_DEPTH_TEST)
-			glClearColor(0F, 0F, 0F, 0F)
-			glClear(GL20.GL_COLOR_BUFFER_BIT)
-			glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
-		}
+		ScreenUtils.clear(0F, 0F, 0F, 0F)
 		
-		camera.setToOrtho(true, Screen.WIDTH.toFloat(), Screen.HEIGHT.toFloat())
-		batch.projectionMatrix = camera.combined
-		shapeRenderer.projectionMatrix = camera.combined
+		//camera.setToOrtho(true, Screen.WIDTH.toFloat(), Screen.HEIGHT.toFloat())
+		//batch.projectionMatrix = camera.combined
+		//shapeRenderer.projectionMatrix = camera.combined
 		
 		runPlugins()
 	}
 	
 	private fun createCheatComponents() {
+		loadScripts()
+		
 		UnitInfo.load()
 		SpellInfo.load()
 		
