@@ -21,6 +21,8 @@ object UnitManager {
 	
 	val units: Int2ObjectMap<Unit> = Int2ObjectOpenHashMap(MAX_UNITS)
 	
+	private val unitData = Pointer.alloc(0x4000)
+	
 	private fun scanUnits(process: AttachedProcess, objectManager: Pointer): Boolean {
 		val numMissiles = objectManager.getInt(LViewOffsets.ObjectMapCount)
 		if (numMissiles <= 0) return false
@@ -36,7 +38,7 @@ object UnitManager {
 		return true
 	}
 	
-	private fun scanUnit(process: AttachedProcess, address: Long) {
+	private tailrec fun scanUnit(process: AttachedProcess, address: Long) {
 		if (unitReads >= MAX_UNITS || address <= 0 || visitedNodes.contains(address)) return
 		
 		unitReads++
@@ -45,32 +47,29 @@ object UnitManager {
 		val data = process.readPointer(address, 0x30)
 		if (!data.readable()) return
 		
-		for (childIndex in 0..2) {
-			val childAddress = data.getInt(childIndex * 4L).toLong()
-			if (childAddress > 0)
-				scanUnit(process, childAddress)
+		val networkID = data.getInt(LViewOffsets.ObjectMapNodeNetId)
+		if (networkID >= 0x40000000) {
+			val unitAddress = data.getInt(LViewOffsets.ObjectMapNodeObject).toLong()
+			updateUnit(process, networkID, unitAddress)
 		}
 		
-		val networkID = data.getInt(LViewOffsets.ObjectMapNodeNetId)
-		if (networkID < 0x40000000) return
-		
-		val unitAddress = data.getInt(LViewOffsets.ObjectMapNodeObject).toLong()
-		if (unitAddress <= 0) return
-		
-		updateUnit(process, networkID, unitAddress)
+		// children
+		scanUnit(process, data.getInt(0).toLong())
+		scanUnit(process, data.getInt(4).toLong())
+		scanUnit(process, data.getInt(8).toLong())
 	}
 	
-	private val pointer = Pointer.alloc(0x4000)
-	
 	private fun updateUnit(process: AttachedProcess, networkID: Int, address: Long) {
+		if (address <= 0) return
+		
 		val unit: Unit
 		if (units.containsKey(networkID)) {
 			unit = units[networkID]
-			if (unit.update(process, pointer, false) && networkID != unit.networkID)
+			if (unit.update(process, unitData, false) && networkID != unit.networkID)
 				units.put(unit.networkID.toInt(), unit)
 		} else {
 			unit = Unit(address)
-			if (unit.update(process, pointer, true))
+			if (unit.update(process, unitData, true))
 				units.put(unit.networkID.toInt(), unit)
 		}
 		
