@@ -9,29 +9,22 @@ import kotlin.math.roundToInt
 
 object CooldownTracker : Script() {
 	
-	fun init() = Overlay.run {
-		Overlay {
-			if (!isVisible || !isAlive || name.isEmpty()) return@Overlay
+	private const val SCALE = 32F
+	
+	fun init() = Overlay {
+		if (!isVisible || !isAlive || !info.isChampion || name.isEmpty()) return@Overlay
+		
+		val (x, y) = Renderer.worldToScreen(x, y, z)
+		
+		var xOffset = -SCALE * 2
+		for (spell in spells) {
+			drawSpell(spell, x + xOffset, y + (SCALE * 2))
 			
-			val w2s = Renderer.worldToScreen(x, y, z - info.healthBarHeight)
-			val x = w2s.x
-			val y = w2s.y
-			textRenderer.color = Color.WHITE
-			textRenderer.draw(batch, name, x, y + 50)
-			
-			if (!info.isChampion) return@Overlay
-			
-			val scale = 32F
-			var xOffset = scale * -2
-			for (spell in spells) {
-				drawSpell(spell, x + xOffset, y, scale)
-				
-				xOffset += scale
-			}
+			xOffset += SCALE
 		}
 	}
 	
-	private fun drawSpell(spell: Spell, x: Float, y: Float, scale: Float) = Overlay.run {
+	private fun drawSpell(spell: Spell, x: Float, y: Float) = Overlay.run {
 		val spellData = spell.info
 		if (spellData === SpellInfo.unknownSpell) return@run
 		val icon = spellData.loadIcon ?: return@run
@@ -43,7 +36,7 @@ object CooldownTracker : Script() {
 		val dimmed = lit / 2
 		if (!levelled || !ready) batch.setColor(dimmed, dimmed, dimmed, 1F) // dim
 		
-		batch.draw(icon, x - scale, y, scale, scale, 0, 0, 64, 64, false, true)
+		batch.draw(icon, x - SCALE, y, SCALE, SCALE, 0, 0, 64, 64, false, true)
 		batch.setColor(lit, lit, lit, 1F)
 		
 		if (levelled && !ready) {
@@ -52,8 +45,8 @@ object CooldownTracker : Script() {
 			textRenderer.draw(
 				batch,
 				remaining.roundToInt().toString(),
-				x - scale + (scale / 4) - (scale / 10),
-				y + (scale / 2) + (scale / 10)
+				x - SCALE + (SCALE / 4) - (SCALE / 10),
+				y + (SCALE / 2) + (SCALE / 10)
 			)
 		}
 	}
