@@ -32,7 +32,8 @@ data class LeagueOfLegendsHook(
 			val pid = pidPointer.value
 			
 			val process = Attach.byID(pid, WindowsAttachAccess.All) {
-				set(WindowsAttachedProcess.KERNEL_32_READS, true)
+				set(WindowsAttachedProcess.KERNEL_32_READS, false)
+				set(WindowsAttachedProcess.KERNEL_32_WRITES, false)
 			} as WindowsAttachedProcess
 			
 			val modules = process.modules(true)
