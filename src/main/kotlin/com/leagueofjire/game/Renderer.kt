@@ -16,30 +16,29 @@ object Renderer {
 	val projMatrix = FloatArray(16)
 	val viewProjMatrix = FloatArray(16)
 	
+	private val data = Pointer.alloc(128)
+	
 	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
 		val renderBase = process.int(base.address + Offsets.Renderer).toLong()
 		if (renderBase <= 0) return false
 		
-		val data = process.readPointer(renderBase, 128)
-		if (!data.readable()) {
-			// size small enough to be cached.
-			return false
-		}
+		if (!process.read(renderBase, data, 128)) return false
+		if (!data.readable()) return false
 		
 		width = data.getInt(LViewOffsets.RendererWidth)
 		height = data.getInt(LViewOffsets.RendererHeight)
 		
-		val viewData = process.readPointer(base.address + Offsets.ViewMatrix, 128)
-		return updateMatrix(viewData)
+		if (!process.read(base.address + Offsets.ViewMatrix, data, 128)) return false
+		return updateMatrix(data)
 	}
 	
-	private fun updateMatrix(viewData: Pointer): Boolean {
-		if (!viewData.readable()) return false
+	private fun updateMatrix(@Suppress("SameParameterValue") data: Pointer): Boolean {
+		if (!data.readable()) return false
 		
 		for (i in 0..viewMatrix.lastIndex)
-			viewMatrix[i] = viewData.getFloat(i.toLong() * Float.SIZE_BYTES)
+			viewMatrix[i] = data.getFloat(i.toLong() * Float.SIZE_BYTES)
 		for (i in 0..projMatrix.lastIndex)
-			projMatrix[i] = viewData.getFloat(64L + (i * Float.SIZE_BYTES))
+			projMatrix[i] = data.getFloat(64L + (i * Float.SIZE_BYTES))
 		
 		return sumMatrix()
 	}
