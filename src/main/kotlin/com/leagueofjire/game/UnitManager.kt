@@ -18,8 +18,6 @@ object UnitManager {
 	
 	private const val MAX_OBJECTS = 500
 	
-	val unitAddresses = LongArray(MAX_OBJECTS)
-	
 	val nodesToVisit: LongQueue = LongQueue(MAX_OBJECTS)
 	val visitedNodes: LongSet = LongOpenHashSet(MAX_OBJECTS)
 	
@@ -56,60 +54,51 @@ object UnitManager {
 					nodesToVisit.addLast(childAddress)
 			}
 			
-			// Network ids of the objects we are interested in start from 0x40000000. We do this check for performance reasons.
-			val networkID = data.getInt(LViewOffsets.ObjectMapNodeNetId).toLong()
-			if (networkID <= 0 || abs(networkID - 0x40000000L) > 0x100000L)
-				continue
+			val networkID = data.getInt(LViewOffsets.ObjectMapNodeNetId)
+			if (networkID < 0x40000000) continue
 			
 			val unitAddress = data.getInt(LViewOffsets.ObjectMapNodeObject).toLong()
 			if (unitAddress <= 0) continue
 			
-			unitAddresses[unitCount++] = unitAddress
+			unitCount++
+			updateUnit(process, networkID, unitAddress)
 		}
 		
 		return unitCount
 	}
 	
-	private fun updateUnits(process: AttachedProcess, unitCount: Int) {
-		val pointer = Pointer.alloc(0x4000)
-		for (i in 0..unitCount - 1) {
-			val unitAddress = unitAddresses[i]
-			if (unitAddress <= 0) continue
+	private val pointer = Pointer.alloc(0x4000)
+	
+	private fun updateUnit(process: AttachedProcess, networkID: Int, address: Long) {
+		val unit: Unit
+		if (units.containsKey(networkID)) {
+			unit = units[networkID]
+			if (unit.update(process, pointer, false) && networkID != unit.networkID)
+				units.put(unit.networkID.toInt(), unit)
+		} else {
+			unit = Unit(address)
+			if (unit.update(process, pointer, true))
+				units.put(unit.networkID.toInt(), unit)
+		}
+		
+		if (unit.isVisible)
+			unit.lastVisibleAt = GameTime.gameTime
+		
+		if (false && unit.networkID > 0) {
+			// indexToNetworkID[unit.objectIndex] = unit.networkID
+			// updatedThisFrame.enqueue(unit.networkID)
 			
-			val networkID = process.int(unitAddress + GameObject.ObjNetworkID)
-			if (networkID < 0) continue
-			
-			val unit: Unit
-			if (units.containsKey(networkID)) {
-				unit = units[networkID]
-				if (unit.update(process, pointer, false) && networkID != unit.networkID)
-					units.put(unit.networkID.toInt(), unit)
-			} else {
-				unit = Unit(unitAddress)
-				if (unit.update(process, pointer, true))
-					units.put(unit.networkID.toInt(), unit)
-			}
-			
-			if (unit.isVisible)
-				unit.lastVisibleAt = GameTime.gameTime
-			
-			if (unit.networkID > 0) {
-				// indexToNetworkID[unit.objectIndex] = unit.networkID
-				// updatedThisFrame.enqueue(unit.networkID)
-				
-				val info = unit.info
-				if (info.isChampion) {
-					// add to champions list
-				} else if (false/*data.isMinion*/) {
-					// add to minions list
-				} else if (info.isJungle) {
-					// add to jungle list
-				} else if (false/*data.isTurret*/) {
-					// add to turret list
-				}
+			val info = unit.info
+			if (info.isChampion) {
+				// add to champions list
+			} else if (false/*data.isMinion*/) {
+				// add to minions list
+			} else if (info.isJungle) {
+				// add to jungle list
+			} else if (false/*data.isTurret*/) {
+				// add to turret list
 			}
 		}
-		pointer.free(0x4000)
 	}
 	
 	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
@@ -123,7 +112,6 @@ object UnitManager {
 		try {
 			val unitCount = scanUnits(process, objectManager)
 			if (unitCount < 1) return false
-			updateUnits(process, unitCount)
 		} finally {
 			objectManager.free(256)
 		}
