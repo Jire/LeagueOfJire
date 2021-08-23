@@ -6,8 +6,6 @@ import org.jire.kna.int
 
 class Spell(val slot: Int) {
 	
-	val slotEnum = SpellSlot.values[slot]
-	
 	companion object {
 		const val SpellSlotLevel = 0x20L
 		const val SpellSlotTime = 0x28L
@@ -16,7 +14,11 @@ class Spell(val slot: Int) {
 		const val SpellInfoSpellData = 0x44L
 		const val SpellDataSpellName = 0x6CL
 		const val SpellDataMissileName = 0x6CL
+		
+		const val DATA_SIZE = 0x150L
 	}
+	
+	val slotEnum = SpellSlot.values[slot]
 	
 	var address = -1L
 	
@@ -29,36 +31,43 @@ class Spell(val slot: Int) {
 	var type: SummonerSpellType = SummonerSpellType.NONE
 	var info: SpellInfo = SpellInfo.unknownSpell
 	
+	private var namePointer = -1L
+	
+	private val data = Pointer.alloc(DATA_SIZE)
+	
 	fun load(process: AttachedProcess, address: Long, deep: Boolean = false): Boolean {
 		this.address = address
 		if (address <= 0) return false
 		
-		val data = Pointer.alloc(0x150)
-		if (!process.read(address, data, 0x150)) return false
+		if (!process.read(address, data, DATA_SIZE)) return false
 		if (!data.readable()) return false
 		
 		readyAt = data.getFloat(SpellSlotTime)
 		level = data.getInt(SpellSlotLevel)
 		value = data.getFloat(SpellSlotDamage)
 		
-		// always cuz champions like nidalee that switch spells
+		// always cuz champions like Nidalee that switch spells
 		deepLoad(process, data)
+		
 		return true
 	}
 	
 	private fun deepLoad(process: AttachedProcess, data: Pointer): Boolean {
-		val spellInfoPtr = data.getInt(SpellSlotSpellInfo).toLong()
-		if (spellInfoPtr <= 0) return false
+		val infoPointer = data.getInt(SpellSlotSpellInfo).toLong()
+		if (infoPointer <= 0) return false
 		
-		val spellDataPtr = process.int(spellInfoPtr + SpellInfoSpellData).toLong()
-		if (spellDataPtr <= 0) return false
+		val dataPointer = process.int(infoPointer + SpellInfoSpellData).toLong()
+		if (dataPointer <= 0) return false
 		
-		val spellNamePtr = process.int(spellDataPtr + SpellDataSpellName).toLong()
-		if (spellNamePtr <= 0) return false
+		val namePointer = process.int(dataPointer + SpellDataSpellName).toLong()
+		// optimization to only re-read if the name pointer has changed
+		if (namePointer <= 0 || this.namePointer == namePointer) return false
 		
-		name = RiotStrings().riotString(process, spellNamePtr)
+		this.namePointer = namePointer
+		name = RiotStrings().riotString(process, namePointer)
 		type = SummonerSpellType.typeToSpell[name] ?: SummonerSpellType.NONE
 		this.info = SpellInfo.nameToData[name] ?: SpellInfo.unknownSpell
+		
 		return true
 	}
 	
