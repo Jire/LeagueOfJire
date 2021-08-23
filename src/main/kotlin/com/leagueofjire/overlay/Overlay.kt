@@ -15,6 +15,7 @@ import com.leagueofjire.overlay.OverlayManager.myHWND
 import com.leagueofjire.scripts.JireScriptCompilationConfiguration
 import com.leagueofjire.scripts.JireScriptEvaluationConfiguration
 import com.leagueofjire.scripts.ScriptContext
+import com.leagueofjire.scripts.autosmite.AutoSmite
 import com.leagueofjire.scripts.cdtracker.CooldownTracker
 import com.sun.jna.platform.win32.WinDef
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
@@ -49,12 +50,16 @@ object Overlay : ApplicationAdapter() {
 	fun loadScripts() {
 		if (true) {
 			// these should be loaded from the files and/or classpath
+			val autosmite = AutoSmite()
 			val cooldownTracker = CooldownTracker()
 			
 			// this context should be updated instead of the manual gameState method etc.
 			val context = ScriptContext(this, Renderer)
 			
 			// this would loop for each of the scripts...
+			with(autosmite) {
+				context.run()
+			}
 			with(cooldownTracker) {
 				context.run()
 			}
