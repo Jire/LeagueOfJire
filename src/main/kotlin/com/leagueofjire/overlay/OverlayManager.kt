@@ -28,17 +28,17 @@ object OverlayManager {
 			setTitle(overlay.title)
 			setWindowPosition(0, 0)
 			setWindowedMode(Screen.WIDTH, Screen.HEIGHT)
-			useOpenGL3(true, 4, 6)//6
+			useOpenGL3(true, 4, 6)
 			setResizable(false)
 			setDecorated(false)
 			useVsync(false)
-			//GLFW.glfwSwapInterval(0)
-			//GLFW.glfwWindowHint(GLFW.GLFW_DOUBLEBUFFER, GLFW.GLFW_TRUE)
+			GLFW.glfwSwapInterval(0)
+			GLFW.glfwWindowHint(GLFW.GLFW_DOUBLEBUFFER, GLFW.GLFW_FALSE)
 			//setBackBufferConfig(8, 8, 8, 8, 16, 0, 0) // samples 4
 			
-			//val fps = 165//Settings.fps.toInt()
-			//setForegroundFPS(fps)
-			//setIdleFPS(min(30, fps))
+			val fps = 0/*60*/
+			setForegroundFPS(fps)
+			setIdleFPS(min(30, fps))
 		}
 		thread(name = "LeagueOfJire", priority = Thread.MAX_PRIORITY) {
 			Lwjgl3Application(overlay, config)

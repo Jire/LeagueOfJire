@@ -148,7 +148,7 @@ object Overlay : ApplicationAdapter() {
 			makeTransparent(myHWND)
 			makeClickthrough(myHWND)
 			
-			makeTransparent(Pointer.nativeValue(window.pointer))
+			//makeTransparent(Pointer.nativeValue(window.pointer))
 			
 			opened = true
 		}
