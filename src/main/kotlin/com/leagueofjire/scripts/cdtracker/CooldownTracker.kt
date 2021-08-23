@@ -10,20 +10,26 @@ import com.leagueofjire.scripts.Script
 import com.leagueofjire.scripts.ScriptContext
 import com.leagueofjire.util.round
 
-object CooldownTracker : Script() {
+class CooldownTracker(
+	val scale: Float = 32F,
+	val readyDarkness: Float = 0.8F,
+	val unreadyDarkness: Float = 0.4F
+) : Script() {
 	
-	private const val SCALE = 32F
-	
-	fun init() = Overlay {
-		if (!isVisible || !isAlive || !info.isChampion || name.isEmpty()) return@Overlay
-		
-		val (x, y) = Renderer.worldToScreen(x, y, z)
-		
-		var xOffset = -SCALE * 2
-		for (spell in spells) {
-			drawSpell(spell, x + xOffset, y + (SCALE * 2))
+	override fun ScriptContext.run() {
+		Overlay {
+			if (!isVisible || !isAlive || !info.isChampion || name.isEmpty()) return@Overlay
 			
-			xOffset += SCALE
+			val (sx, sy) = Renderer.worldToScreen(x, y, z)
+			
+			val yOffset = scale * 2
+			val drawY = sy + yOffset
+			var xOffset = -yOffset
+			
+			for (spell in spells) {
+				drawSpell(spell, sx + xOffset, drawY)
+				xOffset += scale
+			}
 		}
 	}
 	
@@ -33,27 +39,23 @@ object CooldownTracker : Script() {
 		val icon = spellData.loadIcon ?: return@run
 		
 		val levelled = spell.level >= 1
-		val ready = GameTime.gameTime >= spell.readyAt
+		val remaining = spell.readyAt - GameTime.gameTime
+		val ready = remaining <= 0
 		
-		val lit = 0.8F
-		val dimmed = lit / 2
-		if (!levelled || !ready) batch.setColor(dimmed, dimmed, dimmed, 1F) // dim
+		if (!levelled || !ready) batch.setColor(unreadyDarkness, unreadyDarkness, unreadyDarkness, 1F)
 		
-		batch.draw(icon, x - SCALE, y, SCALE, SCALE, 0, 0, 64, 64, false, true)
-		batch.setColor(lit, lit, lit, 1F)
+		batch.draw(icon, x - scale, y, scale, scale, 0, 0, 64, 64, false, true)
+		batch.setColor(readyDarkness, readyDarkness, readyDarkness, 1F)
 		
 		if (levelled && !ready) {
-			val remaining = spell.readyAt - GameTime.gameTime
 			textRenderer.color = Color.WHITE
 			textRenderer.draw(
 				batch,
 				if (remaining < 1) remaining.round(1).toString() else remaining.toInt().toString(),
-				x - SCALE + (SCALE / 4) - (SCALE / 10),
-				y + (SCALE / 2) + (SCALE / 10)
+				x - scale + (scale / 4) - (scale / 10),
+				y + (scale / 2) + (scale / 10)
 			)
 		}
 	}
-	
-	override fun ScriptContext.run() {}
 	
 }
