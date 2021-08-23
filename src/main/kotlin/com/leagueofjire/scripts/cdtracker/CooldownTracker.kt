@@ -1,11 +1,14 @@
 package com.leagueofjire.scripts.cdtracker
 
 import com.badlogic.gdx.graphics.Color
-import com.leagueofjire.game.*
+import com.leagueofjire.game.GameTime
+import com.leagueofjire.game.Renderer
+import com.leagueofjire.game.Spell
+import com.leagueofjire.game.SpellInfo
 import com.leagueofjire.overlay.Overlay
 import com.leagueofjire.scripts.Script
 import com.leagueofjire.scripts.ScriptContext
-import kotlin.math.roundToInt
+import com.leagueofjire.util.round
 
 object CooldownTracker : Script() {
 	
@@ -44,7 +47,7 @@ object CooldownTracker : Script() {
 			textRenderer.color = Color.WHITE
 			textRenderer.draw(
 				batch,
-				remaining.roundToInt().toString(),
+				if (remaining < 1) remaining.round(1).toString() else remaining.toInt().toString(),
 				x - SCALE + (SCALE / 4) - (SCALE / 10),
 				y + (SCALE / 2) + (SCALE / 10)
 			)
