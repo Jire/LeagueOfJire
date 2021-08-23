@@ -32,11 +32,15 @@ object OverlayManager {
 			setResizable(false)
 			setDecorated(false)
 			useVsync(false)
+			
 			GLFW.glfwSwapInterval(0)
 			GLFW.glfwWindowHint(GLFW.GLFW_DOUBLEBUFFER, GLFW.GLFW_FALSE)
-			//setBackBufferConfig(8, 8, 8, 8, 16, 0, 0) // samples 4
 			
-			val fps = 0/*60*/
+			val antialiasingSamples = 0//4
+			// note: we don't need any bits for the back buffer besides just 1 for alpha
+			setBackBufferConfig(0, 0, 0, 1, 0, 0, antialiasingSamples)
+			
+			val fps = 60
 			setForegroundFPS(fps)
 			setIdleFPS(min(30, fps))
 		}
