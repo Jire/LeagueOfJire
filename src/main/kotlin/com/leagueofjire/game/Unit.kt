@@ -7,6 +7,7 @@ import org.jire.kna.Addressed
 import org.jire.kna.Pointer
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
+import kotlin.math.abs
 
 open class Unit(override val address: Long) : Addressed {
 	
@@ -140,6 +141,10 @@ open class Unit(override val address: Long) : Addressed {
 			itemsData.free(0x100)
 		}
 	}
+	
+	fun distance(otherUnit: Unit) = abs(x - otherUnit.x) + abs(y - otherUnit.y) + abs(z - otherUnit.z)
+	
+	fun withinDistance(otherUnit: Unit, distance: Float) = distance(otherUnit) <= distance
 	
 	companion object {
 		

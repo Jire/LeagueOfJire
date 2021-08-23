@@ -6,20 +6,20 @@ import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
 
-object HoveredObject {
-
+object HoveredUnit {
+	
 	@Volatile
-	var hovered: Unit? = null
+	var hoveredUnit: Unit? = null
 	
 	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
-		val addrObj = process.int(base.address + Offsets.UnderMouseObject).toLong()
-		if (addrObj <= 0) return false
+		val address = process.int(base.address + Offsets.UnderMouseObject).toLong()
+		if (address <= 0) return false
 		
-		val networkID = process.int(addrObj + GameObject.ObjNetworkID)
+		val networkID = process.int(address + GameObject.ObjNetworkID)
 		if (networkID < 0) return false
 		
-		hovered = UnitManager.units[networkID]
+		hoveredUnit = UnitManager.units[networkID]
 		return true
 	}
-
+	
 }

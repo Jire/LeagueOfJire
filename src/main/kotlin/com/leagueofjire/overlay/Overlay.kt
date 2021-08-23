@@ -47,28 +47,7 @@ object Overlay : ApplicationAdapter() {
 	lateinit var process: AttachedProcess
 	lateinit var base: AttachedModule
 	
-	fun loadScripts() {
-		if (true) {
-			// these should be loaded from the files and/or classpath
-			val autosmite = AutoSmite()
-			val cooldownTracker = CooldownTracker()
-			
-			// this context should be updated instead of the manual gameState method etc.
-			val context = ScriptContext(this, Renderer)
-			
-			// this would loop for each of the scripts...
-			with(autosmite) {
-				context.run()
-			}
-			with(cooldownTracker) {
-				context.run()
-			}
-			return
-		}
-		
-		val files = File("scripts").listFiles()!!
-		for (file in files) evalFile(file)
-	}
+	lateinit var scriptContext: ScriptContext
 	
 	fun evalFile(scriptFile: File): ResultWithDiagnostics<EvaluationResult> {
 		return BasicJvmScriptingHost().eval(
@@ -78,46 +57,19 @@ object Overlay : ApplicationAdapter() {
 		)
 	}
 	
-	private fun updateGameState() {
-		GameTime.update(process, base)
-		Renderer.update(process, base)
-		// minimap
-		UnitManager.update(process, base)
-		// clear missing objects
-		//LocalPlayer.update(process, base)
-		//HoveredObject.update(process, base)
-		// get map, summoner's rift / howling etc.
-	}
-	
 	private val bodies: ObjectList<Unit.() -> kotlin.Unit> = ObjectArrayList()
 	
 	operator fun invoke(body: Unit.() -> kotlin.Unit) {
 		bodies.add(body)
 	}
 	
-	private fun runPlugins() {
-		batch.begin()
-		
-		for (entry in Int2ObjectMaps.fastIterable(UnitManager.units)) {
-			val unit = entry.value
-			for (i in 0..bodies.lastIndex)
-				bodies[i](unit)
-		}
-		
-		batch.end()
-	}
-	
 	override fun render() {
-		updateGameState()
-		
+		scriptContext.update()
 		ScreenUtils.clear(0F, 0F, 0F, 0F)
-		
-		runPlugins()
+		scriptContext.render()
 	}
 	
 	private fun createCheatComponents() {
-		loadScripts()
-		
 		UnitInfo.load()
 		SpellInfo.load()
 		
@@ -125,12 +77,15 @@ object Overlay : ApplicationAdapter() {
 		window = hook.window
 		process = hook.process
 		base = hook.baseModule
+		
+		scriptContext =
+			ScriptContext(Overlay, GameTime, Renderer, UnitManager, LocalPlayer, HoveredUnit).apply { load() }
 	}
 	
 	private fun createRenderComponents() {
-		camera = OrthographicCamera(Screen.OVERLAY_WIDTH.toFloat(), Screen.OVERLAY_HEIGHT.toFloat()).apply {
-			setToOrtho(true, Screen.OVERLAY_WIDTH.toFloat(), Screen.OVERLAY_HEIGHT.toFloat())
-		}
+		val vw = Screen.OVERLAY_WIDTH.toFloat()
+		val vy = Screen.OVERLAY_HEIGHT.toFloat()
+		camera = OrthographicCamera(vw, vy).apply { setToOrtho(true, vw, vy) }
 		
 		batch = SpriteBatch().apply { projectionMatrix = camera.combined }
 		shapeRenderer = ShapeRenderer().apply { projectionMatrix = camera.combined; setAutoShapeType(true) }

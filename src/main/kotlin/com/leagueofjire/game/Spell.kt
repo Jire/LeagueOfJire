@@ -28,6 +28,8 @@ class Spell(val slot: Int) {
 	var level = -1
 	var value = -1F
 	
+	fun canCast(gameTime: Float) = level > 0 && gameTime >= readyAt
+	
 	var type: SummonerSpellType = SummonerSpellType.NONE
 	var info: SpellInfo = SpellInfo.unknownSpell
 	

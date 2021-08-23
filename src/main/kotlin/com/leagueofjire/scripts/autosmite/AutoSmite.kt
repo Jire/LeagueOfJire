@@ -1,29 +1,26 @@
 package com.leagueofjire.scripts.autosmite
 
-import com.leagueofjire.game.Renderer
-import com.leagueofjire.overlay.Overlay
 import com.leagueofjire.scripts.Script
 import com.leagueofjire.scripts.ScriptContext
-import java.awt.MouseInfo
-import java.awt.Robot
 import java.awt.event.KeyEvent
 
 class AutoSmite : Script() {
 	
-	val robot = Robot()
-	
-	override fun ScriptContext.run() = Overlay {
-		if (!isVisible || !isAlive || !info.isImportantJungle || health > 450) return@Overlay
+	override fun ScriptContext.setup() = unitHook {
+		if (!isVisible || !isAlive || !info.isImportantJungle) return@unitHook
 		
-		println("AUTOSMITE $name (HP: $health)")
+		val player = localPlayer.localPlayer
+		if (!player.isAlive) return@unitHook
 		
-		val (sx, sy) = Renderer.worldToScreen(x, y, z)
+		val gameTime = gameTime.gameTime
 		
-		val original = MouseInfo.getPointerInfo().location
-		robot.mouseMove(sx.toInt(), sy.toInt())
-		robot.keyPress(KeyEvent.VK_F)
-		robot.keyRelease(KeyEvent.VK_F)
-		robot.mouseMove(original.x, original.y)
+		val smite = player.spells[5]
+		if (health > smite.value || !smite.canCast(gameTime)/* || !withinDistance(player, smite.info.castRange)*/) return@unitHook
+		
+		//println("AUTOSMITE $name (HP: $health)")
+		mouse(renderer.worldToScreen(x, y, z)) {
+			key(KeyEvent.VK_F)
+		}
 	}
 	
 }

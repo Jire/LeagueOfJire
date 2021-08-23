@@ -1,8 +1,6 @@
 package com.leagueofjire.scripts.cdtracker
 
 import com.badlogic.gdx.graphics.Color
-import com.leagueofjire.game.GameTime
-import com.leagueofjire.game.Renderer
 import com.leagueofjire.game.Spell
 import com.leagueofjire.game.SpellInfo
 import com.leagueofjire.overlay.Overlay
@@ -22,10 +20,10 @@ class CooldownTracker(
 	private val xTextOffset = -iconSize + (iconSize / 4) - 4
 	private val yTextOffset = (iconSize / 2) + 2
 	
-	override fun ScriptContext.run() = Overlay {
-		if (!isVisible || !isAlive || !info.isChampion || name.isEmpty()) return@Overlay
+	override fun ScriptContext.setup() = unitHook {
+		if (!isVisible || !isAlive || !info.isChampion || name.isEmpty()) return@unitHook
 		
-		val (sx, sy) = Renderer.worldToScreen(x, y, z)
+		val (sx, sy) = renderer.worldToScreen(x, y, z)
 		
 		val drawY = sy + yOffset
 		var xOffset = -yOffset
@@ -36,13 +34,13 @@ class CooldownTracker(
 		}
 	}
 	
-	private fun drawSpell(spell: Spell, x: Float, y: Float) = with(Overlay) {
+	private fun ScriptContext.drawSpell(spell: Spell, x: Float, y: Float) = with(Overlay) {
 		val spellData = spell.info
 		if (spellData === SpellInfo.unknownSpell) return
 		val icon = spellData.loadIcon ?: return
 		
 		val levelled = spell.level >= 1
-		val remaining = spell.readyAt - GameTime.gameTime
+		val remaining = spell.readyAt - gameTime.gameTime
 		val ready = remaining <= 0
 		
 		if (!levelled || !ready) batch.setColor(unreadyDarkness, unreadyDarkness, unreadyDarkness, 1F)
