@@ -15,13 +15,13 @@ import com.leagueofjire.overlay.OverlayManager.myHWND
 import com.leagueofjire.scripts.JireScriptCompilationConfiguration
 import com.leagueofjire.scripts.JireScriptEvaluationConfiguration
 import com.leagueofjire.scripts.cdtracker.CooldownTracker
-import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.WinDef
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
 import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
+import org.lwjgl.system.windows.User32.HWND_TOPMOST
 import java.io.File
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.script.experimental.api.EvaluationResult
@@ -96,10 +96,6 @@ object Overlay : ApplicationAdapter() {
 		
 		ScreenUtils.clear(0F, 0F, 0F, 0F)
 		
-		//camera.setToOrtho(true, Screen.WIDTH.toFloat(), Screen.HEIGHT.toFloat())
-		//batch.projectionMatrix = camera.combined
-		//shapeRenderer.projectionMatrix = camera.combined
-		
 		runPlugins()
 	}
 	
@@ -131,7 +127,7 @@ object Overlay : ApplicationAdapter() {
 		
 		User32.SetWindowPos(
 			myHWND,
-			HWND_TOPPOS,
+			HWND_TOPMOST,
 			Screen.OVERLAY_OFFSET,
 			Screen.OVERLAY_OFFSET,
 			Screen.OVERLAY_WIDTH,
