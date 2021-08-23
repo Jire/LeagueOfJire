@@ -24,7 +24,7 @@ class ScriptContext(
 	val unitManager: UnitManager,
 	val localPlayer: LocalPlayer,
 	val hoveredUnit: HoveredUnit,
-	val robot: Robot = Robot()
+	val robot: Robot = Robot().apply { autoDelay = 1; isAutoWaitForIdle = true }
 ) {
 	
 	fun update() {
@@ -51,14 +51,23 @@ class ScriptContext(
 	
 	fun render() {
 		overlay.sprites.begin()
+		overlay.shapes.begin()
 		
-		for (entry in Int2ObjectMaps.fastIterable(unitManager.units)) {
+		for (i in 0..scripts.lastIndex) {
+			val script = scripts[i]
+			with(script) {
+				run()
+			}
+		}
+		
+		for (entry in unitManager.unitsIt) {
 			val unit = entry.value
 			for (i in 0..unitHooks.lastIndex)
 				unitHooks[i](unit)
 		}
 		
 		overlay.sprites.end()
+		overlay.shapes.end()
 	}
 	
 	private val scripts: ObjectList<Script> = ObjectArrayList()

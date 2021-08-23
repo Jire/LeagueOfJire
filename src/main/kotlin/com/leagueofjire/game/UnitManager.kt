@@ -4,6 +4,7 @@ import com.leagueofjire.game.offsets.LViewOffsets
 import com.leagueofjire.game.offsets.Offsets
 import com.leagueofjire.util.free
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongSet
@@ -27,6 +28,8 @@ object UnitManager {
 	private fun unitScanPointer(index: Int) = Pointer(unitScanPointers[index])
 	
 	val units: Int2ObjectMap<Unit> = Int2ObjectOpenHashMap(MAX_UNITS)
+	
+	val unitsIt = Int2ObjectMaps.fastIterable(units)
 	
 	private val unitData = Pointer.alloc(0x4000)
 	
