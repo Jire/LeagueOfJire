@@ -16,8 +16,15 @@ object UnitManager {
 	
 	private const val MAX_UNITS = 500
 	
-	private var unitReads = 0
+	private var unitsRead = 0
 	private val visitedNodes: LongSet = LongOpenHashSet(MAX_UNITS)
+	
+	// we have to use `LongArray` because `Array<Pointer>` would result in boxing
+	private val unitScanPointers = LongArray(MAX_UNITS) {
+		Pointer.alloc(0x30).address
+	}
+	
+	private fun unitScanPointer(index: Int) = Pointer(unitScanPointers[index])
 	
 	val units: Int2ObjectMap<Unit> = Int2ObjectOpenHashMap(MAX_UNITS)
 	
@@ -30,7 +37,7 @@ object UnitManager {
 		val rootUnitAddress = objectManager.getInt(LViewOffsets.ObjectMapRoot).toLong()
 		if (rootUnitAddress <= 0) return false
 		
-		unitReads = 0
+		unitsRead = 0
 		visitedNodes.clear()
 		
 		scanUnit(process, rootUnitAddress)
@@ -39,12 +46,12 @@ object UnitManager {
 	}
 	
 	private tailrec fun scanUnit(process: AttachedProcess, address: Long) {
-		if (unitReads >= MAX_UNITS || address <= 0 || visitedNodes.contains(address)) return
+		if (unitsRead >= MAX_UNITS || address <= 0 || visitedNodes.contains(address)) return
 		
-		unitReads++
 		visitedNodes.add(address)
 		
-		val data = process.readPointer(address, 0x30)
+		val data = unitScanPointer(unitsRead++)
+		if (!process.read(address, data, 0x30)) return
 		if (!data.readable()) return
 		
 		val networkID = data.getInt(LViewOffsets.ObjectMapNodeNetId)
