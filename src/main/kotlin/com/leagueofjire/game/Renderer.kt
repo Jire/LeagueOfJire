@@ -54,50 +54,27 @@ object Renderer {
 		return true
 	}
 	
-	fun worldToScreen(x: Float, y: Float, z: Float): Vector2D {
-		val clipCoordsX = x * viewProjMatrix[0] + y * viewProjMatrix[4] + z * viewProjMatrix[8] + viewProjMatrix[12]
-		val clipCoordsY = x * viewProjMatrix[1] + y * viewProjMatrix[5] + z * viewProjMatrix[9] + viewProjMatrix[13]
-		//var clipCoordsZ = x * viewProjMatrix[2] + y * viewProjMatrix[6] + z * viewProjMatrix[10] + viewProjMatrix[14]
-		var clipCoordsW = x * viewProjMatrix[3] + y * viewProjMatrix[7] + z * viewProjMatrix[11] + viewProjMatrix[15]
+	fun screen(unit: Unit) = screen(unit.x, unit.y, unit.z)
+	
+	fun screen(x: Float, y: Float, z: Float): Vector2D {
+		val coordX = x * viewProjMatrix[0] + y * viewProjMatrix[4] + z * viewProjMatrix[8] + viewProjMatrix[12]
+		val coordY = x * viewProjMatrix[1] + y * viewProjMatrix[5] + z * viewProjMatrix[9] + viewProjMatrix[13]
+		var coordW = x * viewProjMatrix[3] + y * viewProjMatrix[7] + z * viewProjMatrix[11] + viewProjMatrix[15]
 		
-		if (clipCoordsW < 1) clipCoordsW = 1F
+		if (coordW < 1) coordW = 1F
 		
-		val middleX = clipCoordsX / clipCoordsW
-		val middleY = clipCoordsY / clipCoordsW
-		//val middleZ = clipCoordsZ / clipCoordsW
+		val middleX = coordX / coordW
+		val middleY = coordY / coordW
 		
-		val screenX = width.toFloat()
-		val screenY = height.toFloat()
+		val screenX = (width / 2F * middleX) + (middleX + width / 2F)
+		val screenY = -(height / 2F * middleY) + (middleY + height / 2F)
 		
-		val outX = (screenX / 2F * middleX) + (middleX + screenX / 2F)
-		val outY = -(screenY / 2F * middleY) + (middleY + screenY / 2F)
-		return Vector2D(outX, outY)
+		return Vector2D(screenX, screenY)
 	}
 	
-	fun isScreenPointOnScreen(x: Float, y: Float, offsetX: Float, offsetY: Float) =
+	fun onScreen(vector2D: Vector2D) = onScreen(vector2D.x, vector2D.y)
+	
+	fun onScreen(x: Float, y: Float, offsetX: Float = 0F, offsetY: Float = 0F) =
 		x > -offsetX && x < (width + offsetX) && y > -offsetY && y < (height + offsetY)
-	
-	fun isWorldPointOnScreen(x: Float, y: Float, z: Float, offsetX: Float, offsetY: Float): Boolean {
-		val w2s = worldToScreen(x, y, z)
-		return isScreenPointOnScreen(w2s.x, w2s.y, offsetX, offsetY)
-	}
-	
-	fun distanceToMinimap(dist: Float, wSizeX: Float, wSizeY: Float) = (dist / 15000F) * wSizeX
-	
-	fun worldToMinimap(
-		x: Float,
-		y: Float,
-		z: Float,
-		wPosX: Float,
-		wPosY: Float,
-		wSizeX: Float,
-		wSizeY: Float
-	): Pair<Float, Float> {
-		var rx = x / 15000F
-		var ry = z / 15000F
-		rx = wPosX + rx * wSizeX
-		ry = wPosY + wSizeY - (ry * wSizeY)
-		return rx to ry
-	}
 	
 }

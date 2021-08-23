@@ -10,7 +10,7 @@ object Offsets {
 	const val NetClient = 0x2fd11b4L
 	const val UnderMouseObject = 0x2FBEA88/*0x2fc9ab8L*/
 	const val Minimap = 0x2fe844cL
-	const val MinimapObject = 0x2fc969cL
+	const val MinimapObject = 0x2FC969CL
 	const val HudInstance = 0x172ca20L
 	const val LocalPlayer = 0x2fc90d8L
 	const val MissleList = 0x2fc842cL
@@ -18,5 +18,9 @@ object Offsets {
 	const val HeroList = 0x172a9c0L
 	const val ObjectManager = 0x172c9e4L
 	const val Chat = 0x2fc9768L
+	
+	val MinimapObjectHud = 0x14L
+	val MinimapHudPos = 0x44L
+	val MinimapHudSize = 0x4CL
 	
 }

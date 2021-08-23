@@ -15,10 +15,7 @@ import com.leagueofjire.overlay.OverlayManager.myHWND
 import com.leagueofjire.scripts.JireScriptCompilationConfiguration
 import com.leagueofjire.scripts.JireScriptEvaluationConfiguration
 import com.leagueofjire.scripts.ScriptContext
-import com.leagueofjire.scripts.autosmite.AutoSmite
-import com.leagueofjire.scripts.cdtracker.CooldownTracker
 import com.sun.jna.platform.win32.WinDef
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
 import org.jire.kna.attach.AttachedModule
@@ -38,10 +35,10 @@ object Overlay : ApplicationAdapter() {
 	@Volatile
 	var created: Boolean = false
 	
-	lateinit var batch: SpriteBatch
+	lateinit var sprites: SpriteBatch
 	lateinit var camera: OrthographicCamera
-	lateinit var shapeRenderer: ShapeRenderer
-	lateinit var textRenderer: BitmapFont
+	lateinit var shapes: ShapeRenderer
+	lateinit var texts: BitmapFont
 	
 	lateinit var window: WinDef.HWND
 	lateinit var process: AttachedProcess
@@ -78,8 +75,8 @@ object Overlay : ApplicationAdapter() {
 		process = hook.process
 		base = hook.baseModule
 		
-		scriptContext =
-			ScriptContext(Overlay, GameTime, Renderer, UnitManager, LocalPlayer, HoveredUnit).apply { load() }
+		scriptContext = ScriptContext(Overlay, GameTime, Renderer, Minimap, UnitManager, LocalPlayer, HoveredUnit)
+			.apply { load() }
 	}
 	
 	private fun createRenderComponents() {
@@ -87,9 +84,9 @@ object Overlay : ApplicationAdapter() {
 		val vy = Screen.OVERLAY_HEIGHT.toFloat()
 		camera = OrthographicCamera(vw, vy).apply { setToOrtho(true, vw, vy) }
 		
-		batch = SpriteBatch().apply { projectionMatrix = camera.combined }
-		shapeRenderer = ShapeRenderer().apply { projectionMatrix = camera.combined; setAutoShapeType(true) }
-		textRenderer = BitmapFont(true).apply { color = Color.RED }
+		sprites = SpriteBatch().apply { projectionMatrix = camera.combined }
+		shapes = ShapeRenderer().apply { projectionMatrix = camera.combined; setAutoShapeType(true) }
+		texts = BitmapFont(true).apply { color = Color.RED }
 	}
 	
 	private fun configureRendering() {
@@ -130,9 +127,9 @@ object Overlay : ApplicationAdapter() {
 	}
 	
 	override fun dispose() {
-		batch.dispose()
-		shapeRenderer.dispose()
-		textRenderer.dispose()
+		sprites.dispose()
+		shapes.dispose()
+		texts.dispose()
 	}
 	
 	const val HWND_TOPPOS = -1L

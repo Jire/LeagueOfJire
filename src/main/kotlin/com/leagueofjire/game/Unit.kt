@@ -9,16 +9,18 @@ import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
 import kotlin.math.abs
 
-open class Unit(override val address: Long) : Addressed {
+open class Unit(override val address: Long) : Addressed, Positioned {
+	
+	var disableUpdating = false
 	
 	var name = ""
 	
 	var lastVisibleAt = -1F
 	
 	var team = -1
-	var x = -1F
-	var y = -1F
-	var z = -1F
+	override var x = -1F
+	override var y = -1F
+	override var z = -1F
 	var health = -1F
 	var maxHealth = -1F
 	var baseAttack = -1F
@@ -42,6 +44,8 @@ open class Unit(override val address: Long) : Addressed {
 	var info: UnitInfo = UnitInfo.unknownInfo
 	
 	fun update(process: AttachedProcess, data: Pointer, deep: Boolean = false): Boolean {
+		if (disableUpdating) return false
+		
 		if (!process.read(address, data, DATA_SIZE)) return false
 		if (!data.readable()) return false
 		
@@ -90,6 +94,14 @@ open class Unit(override val address: Long) : Addressed {
 		name = RiotStrings().riotString(process, nameAddress)
 		if (name.isNotEmpty()) {
 			info = UnitInfo.nameToInfo[name] ?: UnitInfo.unknownInfo
+			
+			// "trash objects"
+			when (name) {
+				"testcube", "testcuberender", "testcuberender10vision",
+				"s5test_wardcorpse",
+				"sru_camprespawnmarker", "sru_plantrespawnmarker",
+				"preseason_turret_shield" -> disableUpdating = true
+			}
 		}
 		
 		return true

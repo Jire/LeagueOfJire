@@ -14,7 +14,7 @@ import org.jire.kna.int
 
 object UnitManager {
 	
-	private const val MAX_UNITS = 500
+	private const val MAX_UNITS = 1024
 	
 	private var unitsRead = 0
 	private val visitedNodes: LongSet = LongOpenHashSet(MAX_UNITS)
@@ -46,11 +46,12 @@ object UnitManager {
 	}
 	
 	private tailrec fun scanUnit(process: AttachedProcess, address: Long) {
+		val unitsRead = unitsRead++
 		if (unitsRead >= MAX_UNITS || address <= 0 || visitedNodes.contains(address)) return
 		
 		visitedNodes.add(address)
 		
-		val data = unitScanPointer(unitsRead++)
+		val data = unitScanPointer(unitsRead)
 		if (!process.read(address, data, 0x30)) return
 		if (!data.readable()) return
 		

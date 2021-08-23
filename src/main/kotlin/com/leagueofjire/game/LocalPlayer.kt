@@ -15,7 +15,7 @@ object LocalPlayer {
 		if (address <= 0) return false
 		
 		val networkID = process.int(address + GameObject.ObjNetworkID)
-		if (networkID < 0) return false
+		if (networkID <= 0) return false
 		
 		val unit = UnitManager.units[networkID] ?: return false
 		localPlayer = unit
