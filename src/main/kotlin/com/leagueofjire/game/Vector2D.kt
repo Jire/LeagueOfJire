@@ -2,10 +2,14 @@ package com.leagueofjire.game
 
 @JvmInline
 value class Vector2D(val combo: Long) {
+	
 	constructor(x: Float, y: Float) : this(combo(x, y))
 	
 	val x get() = comboA(combo)
 	val y get() = comboB(combo)
+	
+	operator fun component1() = x
+	operator fun component2() = y
 	
 	companion object {
 		
