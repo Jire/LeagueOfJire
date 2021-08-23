@@ -1,70 +1,63 @@
 package com.leagueofjire.game
 
-import com.badlogic.gdx.utils.LongQueue
-import com.leagueofjire.game.offsets.GameObject
 import com.leagueofjire.game.offsets.LViewOffsets
 import com.leagueofjire.game.offsets.Offsets
 import com.leagueofjire.util.free
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import it.unimi.dsi.fastutil.longs.*
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet
+import it.unimi.dsi.fastutil.longs.LongSet
 import org.jire.kna.Pointer
 import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
-import kotlin.math.abs
 
 object UnitManager {
 	
-	private const val MAX_OBJECTS = 500
+	private const val MAX_UNITS = 500
 	
-	val nodesToVisit: LongQueue = LongQueue(MAX_OBJECTS)
-	val visitedNodes: LongSet = LongOpenHashSet(MAX_OBJECTS)
+	private var unitReads = 0
+	private val visitedNodes: LongSet = LongOpenHashSet(MAX_UNITS)
 	
-	val units: Int2ObjectMap<Unit> = Int2ObjectOpenHashMap(MAX_OBJECTS)
+	val units: Int2ObjectMap<Unit> = Int2ObjectOpenHashMap(MAX_UNITS)
 	
-	private fun scanUnits(process: AttachedProcess, objectManager: Pointer): Int {
+	private fun scanUnits(process: AttachedProcess, objectManager: Pointer): Boolean {
 		val numMissiles = objectManager.getInt(LViewOffsets.ObjectMapCount)
-		if (numMissiles <= 0) return 0
+		if (numMissiles <= 0) return false
 		
-		val rootNode = objectManager.getInt(LViewOffsets.ObjectMapRoot).toLong()
-		if (rootNode <= 0) return 0
+		val rootUnitAddress = objectManager.getInt(LViewOffsets.ObjectMapRoot).toLong()
+		if (rootUnitAddress <= 0) return false
 		
-		nodesToVisit.clear()
+		unitReads = 0
 		visitedNodes.clear()
 		
-		nodesToVisit.addFirst(rootNode)
+		scanUnit(process, rootUnitAddress)
 		
-		var unitReads = 0
-		var unitCount = 0
+		return true
+	}
+	
+	private fun scanUnit(process: AttachedProcess, address: Long) {
+		if (unitReads >= MAX_UNITS || address <= 0 || visitedNodes.contains(address)) return
 		
-		while (unitReads < MAX_OBJECTS && !nodesToVisit.isEmpty) {
-			val node = nodesToVisit.removeLast()
-			if (node <= 0 || visitedNodes.contains(node)) continue
-			
-			unitReads++
-			visitedNodes.add(node)
-			
-			val data = process.readPointer(node, 0x30)
-			if (!data.readable()) continue
-			
-			for (childIndex in 0..2) {
-				val childAddress = data.getInt(childIndex * 4L).toLong()
-				if (childAddress > 0)
-					nodesToVisit.addLast(childAddress)
-			}
-			
-			val networkID = data.getInt(LViewOffsets.ObjectMapNodeNetId)
-			if (networkID < 0x40000000) continue
-			
-			val unitAddress = data.getInt(LViewOffsets.ObjectMapNodeObject).toLong()
-			if (unitAddress <= 0) continue
-			
-			unitCount++
-			updateUnit(process, networkID, unitAddress)
+		unitReads++
+		visitedNodes.add(address)
+		
+		val data = process.readPointer(address, 0x30)
+		if (!data.readable()) return
+		
+		for (childIndex in 0..2) {
+			val childAddress = data.getInt(childIndex * 4L).toLong()
+			if (childAddress > 0)
+				scanUnit(process, childAddress)
 		}
 		
-		return unitCount
+		val networkID = data.getInt(LViewOffsets.ObjectMapNodeNetId)
+		if (networkID < 0x40000000) return
+		
+		val unitAddress = data.getInt(LViewOffsets.ObjectMapNodeObject).toLong()
+		if (unitAddress <= 0) return
+		
+		updateUnit(process, networkID, unitAddress)
 	}
 	
 	private val pointer = Pointer.alloc(0x4000)
@@ -110,8 +103,7 @@ object UnitManager {
 		if (!objectManager.readable()) return false
 		
 		try {
-			val unitCount = scanUnits(process, objectManager)
-			if (unitCount < 1) return false
+			if (!scanUnits(process, objectManager)) return false
 		} finally {
 			objectManager.free(256)
 		}
