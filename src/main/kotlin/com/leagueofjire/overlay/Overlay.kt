@@ -61,7 +61,7 @@ object Overlay : ApplicationAdapter() {
 	}
 	
 	override fun render() {
-		scriptContext.update()
+		if (!scriptContext.update() || GameTime.gameTime < 5F) return
 		ScreenUtils.clear(0F, 0F, 0F, 0F)
 		scriptContext.render()
 	}

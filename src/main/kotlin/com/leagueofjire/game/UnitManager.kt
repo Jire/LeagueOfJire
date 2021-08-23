@@ -8,6 +8,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongSet
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import it.unimi.dsi.fastutil.objects.ObjectList
 import org.jire.kna.Pointer
 import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
@@ -31,6 +33,9 @@ object UnitManager {
 	
 	val unitsIt = Int2ObjectMaps.fastIterable(units)
 	
+	val champions: ObjectList<Unit> = ObjectArrayList(10)
+	val monsters: ObjectList<Unit> = ObjectArrayList(64)
+	
 	private val unitData = Pointer.alloc(0x4000)
 	
 	private fun scanUnits(process: AttachedProcess, objectManager: Pointer): Boolean {
@@ -41,6 +46,8 @@ object UnitManager {
 		if (rootUnitAddress <= 0) return false
 		
 		unitsRead = 0
+		champions.clear()
+		monsters.clear()
 		visitedNodes.clear()
 		
 		scanUnit(process, rootUnitAddress)
@@ -87,16 +94,17 @@ object UnitManager {
 		if (unit.isVisible)
 			unit.lastVisibleAt = GameTime.gameTime
 		
-		if (false && unit.networkID > 0) {
-			// indexToNetworkID[unit.objectIndex] = unit.networkID
-			// updatedThisFrame.enqueue(unit.networkID)
-			
+		if (unit.networkID > 0) {
 			val info = unit.info
 			if (info.isChampion) {
+				if (!champions.contains(unit))
+					champions.add(unit)
 				// add to champions list
 			} else if (false/*data.isMinion*/) {
 				// add to minions list
 			} else if (info.isJungle) {
+				if (!monsters.contains(unit))
+					monsters.add(unit)
 				// add to jungle list
 			} else if (false/*data.isTurret*/) {
 				// add to turret list

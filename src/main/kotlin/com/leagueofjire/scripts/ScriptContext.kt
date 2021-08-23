@@ -27,20 +27,17 @@ class ScriptContext(
 	val robot: Robot = Robot().apply { autoDelay = 1; isAutoWaitForIdle = true }
 ) {
 	
-	fun update() {
+	fun update(): Boolean {
 		val process = overlay.process
 		val base = overlay.base
-		if (
-			gameTime.update(process, base)
-			&& renderer.update(process, base)
-			&& minimap.update(process, base)
-			&& unitManager.update(process, base)
-			// clear missing objects
-			&& localPlayer.update(process, base)
-		// && hoveredUnit.update(process, base)
-		// get map, summoner's rift / howling etc.
-		) {
-		}
+		return gameTime.update(process, base)
+				&& renderer.update(process, base)
+				&& minimap.update(process, base)
+				&& unitManager.update(process, base)
+				// clear missing objects
+				&& localPlayer.update(process, base)
+		        // && hoveredUnit.update(process, base)
+		        // get map, summoner's rift / howling etc.
 	}
 	
 	private val unitHooks: ObjectList<UnitHook> = ObjectArrayList()
@@ -128,5 +125,9 @@ class ScriptContext(
 		if (renderer.onScreen(this))
 			ifOnScreen()
 	}
+	
+	val time get() = gameTime.gameTime
+	
+	val me get() = localPlayer.localPlayer
 	
 }

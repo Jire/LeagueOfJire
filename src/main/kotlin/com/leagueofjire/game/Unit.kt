@@ -45,7 +45,6 @@ open class Unit(override val address: Long) : Addressed, Positioned {
 	
 	fun update(process: AttachedProcess, data: Pointer, deep: Boolean = false): Boolean {
 		if (disableUpdating) return false
-		
 		if (!process.read(address, data, DATA_SIZE)) return false
 		if (!data.readable()) return false
 		
@@ -110,9 +109,8 @@ open class Unit(override val address: Long) : Addressed, Positioned {
 	var spells: Array<Spell> = defaultSpells
 	var itemSlots: Array<ItemSlot> = defaultItemSlots
 	
-	fun updateChampion(process: AttachedProcess, data: Pointer, deep: Boolean = false): Boolean {
-		return updateSpells(process, data, deep) && updateItems(process)
-	}
+	fun updateChampion(process: AttachedProcess, data: Pointer, deep: Boolean = false) =
+		updateSpells(process, data, deep) && updateItems(process)
 	
 	private fun updateSpells(process: AttachedProcess, data: Pointer, deep: Boolean): Boolean {
 		if (spells === defaultSpells) spells = Array(6) { Spell(it) }
@@ -125,6 +123,8 @@ open class Unit(override val address: Long) : Addressed, Positioned {
 	}
 	
 	private fun updateItems(process: AttachedProcess): Boolean {
+		if (true) return true
+		
 		val itemsAddress = process.int(address + GameObject.ObjItemList).toLong()
 		if (itemsAddress <= 0) return false
 		

@@ -16,12 +16,11 @@ class AutoSmite(
 	override fun ScriptContext.setup() = unitHook {
 		if (!enabled || !isVisible || !isAlive || !info.isImportantJungle) return@unitHook
 		
-		val player = localPlayer.localPlayer
-		if (!player.isAlive) return@unitHook
+		if (!me.isAlive) return@unitHook
 		
 		val gameTime = gameTime.gameTime
 		
-		val smite = player.spells[5]
+		val smite = me.spells[5]
 		if (health > smite.value || !smite.canCast(gameTime)/* || !withinDistance(player, smite.info.castRange)*/) return@unitHook
 		
 		mouse(renderer.screen(this)) {
@@ -31,7 +30,7 @@ class AutoSmite(
 	
 	override fun ScriptContext.run() {
 		val time = gameTime.gameTime
-		if (time - lastToggle >= 0.3F && Keyboard.keyPressed(KeyEvent.VK_BACK_SPACE)) {
+		if (time - lastToggle >= 0.3F && Keyboard.keyPressed(toggleKey)) {
 			lastToggle = time
 			enabled = !enabled
 		}
