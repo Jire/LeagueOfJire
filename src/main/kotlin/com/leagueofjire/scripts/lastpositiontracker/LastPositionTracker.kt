@@ -15,8 +15,8 @@ class LastPositionTracker(
 ) : Script() {
 	
 	override fun ScriptContext.setup() = overlay.run {
-		unitHook {
-			if (isVisible || !info.isChampion || name.isEmpty()) return@unitHook
+		championHook {
+			if (isVisible || !info.isChampion || name.isEmpty()) return@championHook
 			
 			val timeMissing = (gameTime.gameTime - lastVisibleAt).toInt()
 			

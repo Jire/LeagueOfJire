@@ -84,11 +84,11 @@ object UnitManager {
 		if (units.containsKey(networkID)) {
 			unit = units[networkID]
 			if (unit.update(process, unitData, false) && networkID != unit.networkID)
-				units.put(unit.networkID.toInt(), unit)
+				units[unit.networkID] = unit
 		} else {
 			unit = Unit(address)
 			if (unit.update(process, unitData, true))
-				units.put(unit.networkID.toInt(), unit)
+				units[unit.networkID] = unit
 		}
 		
 		if (unit.isVisible)

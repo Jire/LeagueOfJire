@@ -20,18 +20,14 @@ class CooldownTracker(
 	private val xTextOffset = -iconSize + (iconSize / 4) - 4
 	private val yTextOffset = (iconSize / 2) + 2
 	
-	override fun ScriptContext.setup() {}
-	
-	override fun ScriptContext.run() {
-		for (champion in unitManager.champions) champion.run {
-			if (isVisible && isAlive) renderer.screen(this).use {
-				val drawY = y + yOffset
-				var xOffset = -yOffset
-				
-				for (spell in spells) {
-					drawSpell(spell, x + xOffset, drawY)
-					xOffset += iconSize
-				}
+	override fun ScriptContext.setup() = championHook {
+		if (isVisible && isAlive) renderer.screen(this).use {
+			val drawY = y + yOffset
+			var xOffset = -yOffset
+			
+			for (spell in spells) {
+				drawSpell(spell, x + xOffset, drawY)
+				xOffset += iconSize
 			}
 		}
 	}

@@ -46,6 +46,12 @@ class ScriptContext(
 		unitHooks.add(hook)
 	}
 	
+	private val championHooks: ObjectList<UnitHook> = ObjectArrayList()
+	
+	fun championHook(hook: UnitHook) {
+		championHooks.add(hook)
+	}
+	
 	fun render() {
 		overlay.sprites.begin()
 		overlay.shapes.begin()
@@ -56,7 +62,11 @@ class ScriptContext(
 				run()
 			}
 		}
-		
+		for (i in 0..unitManager.champions.lastIndex) {
+			val champion = unitManager.champions[i] ?: continue
+			for (ci in 0..championHooks.lastIndex)
+				championHooks[ci](champion)
+		}
 		for (entry in unitManager.unitsIt) {
 			val unit = entry.value
 			for (i in 0..unitHooks.lastIndex)
