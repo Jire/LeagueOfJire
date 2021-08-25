@@ -6,7 +6,7 @@ import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
 
-object Minimap {
+object GameMinimap {
 	
 	private val data = Pointer.alloc(0x80)
 	

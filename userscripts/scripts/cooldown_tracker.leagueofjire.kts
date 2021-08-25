@@ -28,17 +28,17 @@ fun drawSpell(spell: Spell, x: Float, y: Float) {
 	val icon = spellData.loadIcon ?: return
 	
 	val levelled = spell.level >= 1
-	val remaining = spell.readyAt - gameTime.gameTime
+	val remaining = spell.readyAt - gameTime.time
 	val ready = remaining <= 0
 	
-	if (!levelled || !ready) overlay.sprites.setDarkness(unreadyDarkness)
+	if (!levelled || !ready) sprites.setDarkness(unreadyDarkness)
 	
-	overlay.sprites.drawSprite(icon, x - iconSize, y, iconSize, iconSize)
-	overlay.sprites.setDarkness(readyDarkness)
+	sprites.drawSprite(icon, x - iconSize, y, iconSize, iconSize)
+	sprites.setDarkness(readyDarkness)
 	
 	if (levelled && !ready) {
-		overlay.texts.color = textColor
-		overlay.texts.text(remainingToString(remaining), x + xTextOffset, y + yTextOffset)
+		font.color = textColor
+		font.text(remainingToString(remaining), x + xTextOffset, y + yTextOffset)
 	}
 }
 

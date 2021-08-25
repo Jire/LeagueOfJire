@@ -1,6 +1,5 @@
 package com.leagueofjire.native
 
-import com.leagueofjire.overlay.transparency.WindowCompositionAttributeData
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.ptr.IntByReference
@@ -19,7 +18,6 @@ object User32 : DirectNativeLib("user32") {
 		fun callback(hwnd: Long): Boolean
 	}
 	
-	external fun SetWindowCompositionAttribute(hwnd: Long, data: WindowCompositionAttributeData): Long
 	external fun SetWindowDisplayAffinity(hwnd: Long, dwAffinity: Long): Boolean
 	external fun SetActiveWindow(hwnd: Long): Long
 	external fun FindWindowA(s: String?, s1: String?): Long

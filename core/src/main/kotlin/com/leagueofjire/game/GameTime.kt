@@ -8,10 +8,10 @@ import org.jire.kna.float
 object GameTime {
 	
 	@Volatile
-	var gameTime = 0F
+	var time = 0F
 	
-	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
-		gameTime = process.float(base.address + Offsets.GameTime)
+	fun update(process: AttachedProcess, baseModule: AttachedModule): Boolean {
+		time = process.float(baseModule.address + Offsets.GameTime)
 		return true
 	}
 	

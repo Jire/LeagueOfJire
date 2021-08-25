@@ -1,20 +1,13 @@
 package com.leagueofjire.game
 
-import com.leagueofjire.overlay.Overlay
+interface GameContext {
+	
+	val hook: LeagueOfLegendsHook
+	val gameTime: GameTime
+	val renderer: GameRenderer
+	val minimap: GameMinimap
+	val unitManager: GameUnitManager
+	val localPlayer: GameLocalPlayer
+	val hoveredUnit: GameHoveredUnit
 
-object GameContext {
-	
-	fun update(): Boolean {
-		val process = Overlay.process
-		val base = Overlay.base
-		return GameTime.update(process, base)
-				&& Renderer.update(process, base)
-				&& Minimap.update(process, base)
-				&& UnitManager.update(process, base)
-				// clear missing objects
-				&& LocalPlayer.update(process, base)
-		// && hoveredUnit.update(process, base)
-		// get map, summoner's rift / howling etc.
-	}
-	
 }

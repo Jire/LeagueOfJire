@@ -1,4 +1,4 @@
-package com.leagueofjire.overlay
+package com.leagueofjire.app
 
 import java.awt.Dimension
 import java.awt.Toolkit

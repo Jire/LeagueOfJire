@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.leagueofjire.game.*
-import com.leagueofjire.overlay.Overlay
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
 import java.awt.MouseInfo
@@ -19,47 +18,43 @@ import kotlin.script.experimental.annotations.KotlinScript
 	//evaluationConfiguration = JireScriptEvaluationConfiguration::class
 )
 abstract class Script(
-	val overlay: Overlay,
-	val gameTime: GameTime,
-	val renderer: Renderer,
-	val minimap: Minimap,
-	val unitManager: UnitManager,
-	val localPlayer: LocalPlayer,
-	val hoveredUnit: HoveredUnit,
+	val gameContext: GameContext,
+	val overlayContext: OverlayContext,
 	val robot: Robot
-) {
+) : GameContext by gameContext,
+	OverlayContext by overlayContext {
 	
-	private val renderHooks: ObjectList<Overlay.() -> Unit> = ObjectArrayList()
+	private val doRenders: ObjectList<OverlayContext.() -> Unit> = ObjectArrayList()
 	
-	fun render(hook: Overlay.() -> Unit) {
-		renderHooks.add(hook)
+	fun render(doRender: OverlayContext.() -> Unit) {
+		doRenders.add(doRender)
 	}
 	
 	fun render() {
-		for (i in 0..renderHooks.lastIndex) renderHooks[i](overlay)
+		for (i in 0..doRenders.lastIndex) doRenders[i](overlayContext)
 		
 		for (i in 0..unitManager.champions.lastIndex) {
 			val champion = unitManager.champions[i] ?: continue
-			for (ci in 0..championHooks.lastIndex)
-				championHooks[ci](champion)
+			for (ci in 0..eachChampions.lastIndex)
+				eachChampions[ci](champion)
 		}
 		for (entry in unitManager.unitsIt) {
 			val unit = entry.value
-			for (i in 0..unitHooks.lastIndex)
-				unitHooks[i](unit)
+			for (i in 0..eachUnits.lastIndex)
+				eachUnits[i](unit)
 		}
 	}
 	
-	private val unitHooks: ObjectList<UnitHook> = ObjectArrayList()
+	private val eachUnits: ObjectList<UnitHook> = ObjectArrayList()
 	
-	fun eachUnit(hook: UnitHook) {
-		unitHooks.add(hook)
+	fun eachUnit(eachUnit: UnitHook) {
+		eachUnits.add(eachUnit)
 	}
 	
-	private val championHooks: ObjectList<UnitHook> = ObjectArrayList()
+	private val eachChampions: ObjectList<UnitHook> = ObjectArrayList()
 	
-	fun eachChampion(hook: UnitHook) {
-		championHooks.add(hook)
+	fun eachChampion(eachChampion: UnitHook) {
+		eachChampions.add(eachChampion)
 	}
 	
 	fun key(keycode: Int) {
@@ -95,7 +90,7 @@ abstract class Script(
 	
 	fun SpriteBatch.setDarkness(percent: Float) = setColor(percent, percent, percent, 1F)
 	
-	fun BitmapFont.text(text: String, x: Float, y: Float, batch: SpriteBatch = overlay.sprites) =
+	fun BitmapFont.text(text: String, x: Float, y: Float, batch: SpriteBatch = overlayContext.sprites) =
 		draw(batch, text, x, y)
 	
 }

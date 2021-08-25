@@ -6,7 +6,7 @@ import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
 
-object LocalPlayer {
+object GameLocalPlayer {
 	
 	lateinit var localPlayer: Unit
 	
@@ -17,7 +17,7 @@ object LocalPlayer {
 		val networkID = process.int(address + GameObject.ObjNetworkID)
 		if (networkID <= 0) return false
 		
-		val unit = UnitManager.units[networkID] ?: return false
+		val unit = GameUnitManager.units[networkID] ?: return false
 		localPlayer = unit
 		
 		return true

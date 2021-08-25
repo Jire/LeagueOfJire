@@ -1,62 +1,45 @@
 package com.leagueofjire.app
 
 import com.leagueofjire.game.*
-import com.leagueofjire.overlay.Overlay
+import com.leagueofjire.scripts.DefaultOverlayContext
+import com.leagueofjire.scripts.OverlayContext
 import com.leagueofjire.scripts.Script
 import io.github.classgraph.ClassGraph
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
 import java.awt.Robot
 
-object ScriptManager {
+class ScriptManager(val gameContext: GameContext, val overlay: Overlay) {
 	
 	private val scripts: ObjectList<Script> = ObjectArrayList()
 	
 	fun render() {
-		Overlay.sprites.begin()
-		Overlay.shapes.begin()
+		overlay.sprites.begin()
+		overlay.shapes.begin()
 		
 		for (si in 0..scripts.lastIndex) scripts[si].render()
 		
-		Overlay.sprites.end()
-		Overlay.shapes.end()
+		overlay.sprites.end()
+		overlay.shapes.end()
 	}
 	
-	private fun loadScripts() {
-		ClassGraph().enableClassInfo()/*.acceptPackages("scripts")*/.scan().use { scanResult ->
-			val scriptClassList = scanResult
-				.getSubclasses(Script::class.java)
-				.directOnly()
+	fun load(
+		overlayContext: OverlayContext = DefaultOverlayContext(overlay.sprites, overlay.shapes, overlay.texts),
+		robot: Robot = Robot().apply { autoDelay = 1; isAutoWaitForIdle = true }
+	) {
+		ClassGraph().enableClassInfo().scan().use { scanResult ->
+			val scriptClassList = scanResult.getSubclasses(Script::class.java).directOnly()
 			scriptClassList.forEach {
 				val scriptClass = it.loadClass(Script::class.java)
 				val constructor = scriptClass.getDeclaredConstructor(
-					Overlay::class.java,
-					GameTime::class.java,
-					Renderer::class.java,
-					Minimap::class.java,
-					UnitManager::class.java,
-					LocalPlayer::class.java,
-					HoveredUnit::class.java,
+					GameContext::class.java,
+					OverlayContext::class.java,
 					Robot::class.java
 				)
-				val script = constructor.newInstance(
-					Overlay,
-					GameTime,
-					Renderer,
-					Minimap,
-					UnitManager,
-					LocalPlayer,
-					HoveredUnit,
-					Robot().apply { autoDelay = 1; isAutoWaitForIdle = true }
-				)
+				val script = constructor.newInstance(gameContext, overlayContext, robot)
 				scripts.add(script)
 			}
 		}
-	}
-	
-	fun load() {
-		loadScripts()
-		Overlay.renderHook { render() }
 	}
 	
 }

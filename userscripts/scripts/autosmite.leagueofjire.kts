@@ -4,18 +4,18 @@ var lastToggle = -1F
 var enabled = false
 
 render {
-	val time = gameTime.gameTime
+	val time = gameTime.time
 	if (time - lastToggle >= 0.3F && Keyboard.keyPressed(toggleKey)) {
 		lastToggle = time
 		enabled = !enabled
 	}
 	
 	val color = if (enabled) Color.GREEN else Color.RED
-	overlay.shapes.color = color
+	shapes.color = color
 	val y = renderer.height / 2F
-	overlay.shapes.rect(2F, y - 2F, 72F, 18F)
-	overlay.texts.color = color
-	overlay.texts.text("AutoSmite", 5F, y)
+	shapes.rect(2F, y - 2F, 72F, 18F)
+	font.color = color
+	font.text("AutoSmite", 5F, y)
 }
 
 eachUnit {
@@ -23,7 +23,7 @@ eachUnit {
 	
 	if (!me.isAlive) return@eachUnit
 	
-	val gameTime = gameTime.gameTime
+	val gameTime = gameTime.time
 	
 	val smite = me.spells[5]
 	if (health > smite.value || !smite.canCast(gameTime)/* || !withinDistance(player, smite.info.castRange)*/) return@eachUnit

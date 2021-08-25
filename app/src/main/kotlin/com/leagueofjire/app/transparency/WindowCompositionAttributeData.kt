@@ -1,4 +1,4 @@
-package com.leagueofjire.overlay.transparency
+package com.leagueofjire.app.transparency
 
 import com.sun.jna.Pointer
 import com.sun.jna.Structure

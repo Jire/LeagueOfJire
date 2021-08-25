@@ -15,7 +15,7 @@ import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
 
-object UnitManager {
+object GameUnitManager {
 	
 	private const val MAX_UNITS = 1024
 	
@@ -92,7 +92,7 @@ object UnitManager {
 		}
 		
 		if (unit.isVisible)
-			unit.lastVisibleAt = GameTime.gameTime
+			unit.lastVisibleAt = GameTime.time
 		
 		if (unit.networkID > 0) {
 			val info = unit.info

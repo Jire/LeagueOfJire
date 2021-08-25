@@ -6,7 +6,7 @@ import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
 import org.jire.kna.int
 
-object HoveredUnit {
+object GameHoveredUnit {
 	
 	@Volatile
 	var hoveredUnit: Unit? = null
@@ -18,7 +18,7 @@ object HoveredUnit {
 		val networkID = process.int(address + GameObject.ObjNetworkID)
 		if (networkID < 0) return false
 		
-		hoveredUnit = UnitManager.units[networkID]
+		hoveredUnit = GameUnitManager.units[networkID]
 		return true
 	}
 	
