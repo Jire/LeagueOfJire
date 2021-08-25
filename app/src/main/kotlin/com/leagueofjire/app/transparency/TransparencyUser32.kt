@@ -1,6 +1,6 @@
 package com.leagueofjire.app.transparency
 
-import com.leagueofjire.native.DirectNativeLib
+import com.leagueofjire.core.native.DirectNativeLib
 
 object TransparencyUser32 : DirectNativeLib("user32") {
 	

@@ -1,7 +1,10 @@
 package com.leagueofjire.app
 
 import com.badlogic.gdx.utils.ScreenUtils
-import com.leagueofjire.game.*
+import com.leagueofjire.core.game.*
+import com.leagueofjire.core.LeagueOfLegendsHook
+import com.leagueofjire.core.game.unit.champion.spell.SpellInfo
+import com.leagueofjire.core.game.unit.UnitInfo
 
 object LeagueOfJire {
 	
@@ -14,12 +17,12 @@ object LeagueOfJire {
 		
 		val gameContext = DefaultGameContext(
 			hook,
-			GameTime,
-			GameRenderer,
-			GameMinimap,
-			GameUnitManager,
-			GameLocalPlayer,
-			GameHoveredUnit
+			IGameTime,
+			IGameRenderer,
+			IGameMinimap,
+			IGameUnitManager,
+			IGameLocalPlayer,
+			IGameHoveredUnit
 		)
 		if (!gameContext.update()) return
 		

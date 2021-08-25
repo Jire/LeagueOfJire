@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.utils.ScreenUtils
 import com.leagueofjire.app.transparency.*
 import com.leagueofjire.game.*
-import com.leagueofjire.native.User32
+import com.leagueofjire.core.native.User32
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinUser

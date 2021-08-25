@@ -1,3 +1,5 @@
 package com.leagueofjire.scripts
 
-typealias UnitHook = com.leagueofjire.game.Unit.() -> Unit
+import com.leagueofjire.core.game.unit.IGameUnit
+
+typealias UnitHook = IGameUnit.() -> Unit

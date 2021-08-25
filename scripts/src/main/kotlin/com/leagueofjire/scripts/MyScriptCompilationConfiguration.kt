@@ -9,7 +9,7 @@ object MyScriptCompilationConfiguration : ScriptCompilationConfiguration({
 		"com.leagueofjire.util.*",
 		"com.leagueofjire.overlay.Screen",
 		"com.badlogic.gdx.graphics.Color",
-		"java.awt.event.KeyEvent"
+		"java.awt.event.KeyEvent",
 	)
 	ide {
 		acceptedLocations(ScriptAcceptedLocation.Everywhere)
