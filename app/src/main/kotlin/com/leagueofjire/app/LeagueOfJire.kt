@@ -26,7 +26,7 @@ object LeagueOfJire {
 		)
 		if (!gameContext.update()) return
 		
-		val overlay = Overlay()
+		val overlay = Overlay(gameContext)
 		val scriptManager = ScriptManager(gameContext, overlay)
 		
 		overlay.open {

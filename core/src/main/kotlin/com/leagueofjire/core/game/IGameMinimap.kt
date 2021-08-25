@@ -1,5 +1,6 @@
 package com.leagueofjire.core.game
 
+import com.leagueofjire.ScreenPosition
 import com.leagueofjire.core.game.unit.IGameUnit
 import com.leagueofjire.core.offsets.Offsets
 import com.leagueofjire.game.GameMinimap
@@ -44,12 +45,12 @@ object IGameMinimap : GameMinimap {
 	
 	const val WORLD_SCALE = 15000F
 	
-	fun screen(x: Float, y: Float, z: Float): Vector2D {
+	fun screen(x: Float, y: Float, z: Float): ScreenPosition {
 		var rx = x / WORLD_SCALE
 		var ry = z / WORLD_SCALE
 		rx = IGameMinimap.x + rx * width
 		ry = IGameMinimap.y + height - (ry * height)
-		return Vector2D(rx, ry)
+		return ScreenPosition(rx, ry)
 	}
 	
 	fun screen(unit: IGameUnit) = screen(unit.position.x, unit.position.y, unit.position.z)

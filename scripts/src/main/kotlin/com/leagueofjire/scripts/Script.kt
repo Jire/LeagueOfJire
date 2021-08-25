@@ -19,7 +19,7 @@ import kotlin.script.experimental.annotations.KotlinScript
 	"LeagueOfJire Script",
 	fileExtension = "leagueofjire.kts",
 	compilationConfiguration = MyScriptCompilationConfiguration::class,
-	//evaluationConfiguration = JireScriptEvaluationConfiguration::class
+	//evaluationConfiguration = MyScriptEvaluationConfiguration::class
 )
 abstract class Script(
 	val gameContext: IGameContext,
@@ -63,7 +63,7 @@ abstract class Script(
 		eachChampions.add(eachChampion)
 	}
 	
-	inline fun ScreenPosition.use(ifOnScreen: ScreenPosition.() -> Unit) {
+	inline fun ScreenPosition.use(crossinline ifOnScreen: ScreenPosition.() -> Unit) {
 		if (gameContext.renderer.onScreen(this))
 			ifOnScreen()
 	}

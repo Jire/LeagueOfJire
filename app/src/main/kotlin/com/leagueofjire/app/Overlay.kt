@@ -1,7 +1,6 @@
 package com.leagueofjire.app
 
 import com.badlogic.gdx.ApplicationAdapter
-import com.badlogic.gdx.Gdx.gl
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import com.badlogic.gdx.graphics.Color
@@ -9,25 +8,27 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.utils.ScreenUtils
-import com.leagueofjire.app.transparency.*
-import com.leagueofjire.game.*
+import com.leagueofjire.app.transparency.AccentFlags
+import com.leagueofjire.app.transparency.AccentStates
+import com.leagueofjire.app.transparency.TransparencyUser32
+import com.leagueofjire.app.transparency.WindowCompositionAttributeData
+import com.leagueofjire.core.game.IGameContext
 import com.leagueofjire.core.native.User32
 import com.sun.jna.Pointer
-import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinUser
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
 import org.jire.kna.JNAPointerCache
-import org.jire.kna.attach.AttachedModule
-import org.jire.kna.attach.AttachedProcess
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.system.windows.User32.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.concurrent.thread
 import kotlin.math.min
 
-class Overlay(val title: String = ThreadLocalRandom.current().nextLong().toString()) : ApplicationAdapter() {
+class Overlay(
+	val gameContext: IGameContext,
+	val title: String = ThreadLocalRandom.current().nextLong().toString()
+) : ApplicationAdapter() {
 	
 	var myHWND = -1L
 	
@@ -58,16 +59,8 @@ class Overlay(val title: String = ThreadLocalRandom.current().nextLong().toStrin
 	}
 	
 	private fun configureRendering() {
-		gl.glClearColor(0F, 0F, 0F, 0F)
 		myHWND = User32.FindWindowA(null, title)
-		
-		User32.SetWindowPos(
-			myHWND, HWND_TOPMOST,
-			Screen.OVERLAY_OFFSET, Screen.OVERLAY_OFFSET,
-			Screen.OVERLAY_WIDTH, Screen.OVERLAY_HEIGHT,
-			0
-		)
-		
+
 		User32.SetForegroundWindow(myHWND)
 		User32.SetActiveWindow(myHWND)
 		User32.SetFocus(myHWND)
@@ -76,47 +69,21 @@ class Overlay(val title: String = ThreadLocalRandom.current().nextLong().toStrin
 		makeTransparent(myHWND)
 		makeClickthrough(myHWND)
 		
-		if (false) thread {
-			val gameHWND = 12L//Pointer.nativeValue(window.pointer)
-			val overlayHWND = myHWND
-			
+		val gameHWND = Pointer.nativeValue(gameContext.hook.window.pointer)
+		thread(priority = Thread.MIN_PRIORITY) {
 			var needsApply = true
 			while (!Thread.interrupted()) {
 				val foreground = User32.GetForegroundWindow()
 				if (foreground == gameHWND) {
-					if (false && !needsApply) continue
+					if (!needsApply) continue
 					needsApply = false
-					val pol = AccentPolicy().apply {
-						AccentState = 3
-						AccentFlags = 2
-						GradientColor = 0
-						AnimationId = 0
-					}
-					val data = WindowCompositionAttributeData().apply {
-						Attribute = 19
-						Data = pol.pointer
-						SizeOfData = pol.size()
-					}
-					//User32.SetWindowPos(gameHWND, myHWND, 0, 0, 0, 0, 2 or 1)
-					//User32.SetWindowCompositionAttribute(gameHWND, data)
 					
-					User32.SetWindowPos(
-						myHWND,
-						HWND_TOPMOST,
-						Screen.OVERLAY_OFFSET,
-						Screen.OVERLAY_OFFSET,
-						Screen.OVERLAY_WIDTH,
-						Screen.OVERLAY_HEIGHT,
-						0
-					)
 					val hwnd3 = User32.GetWindow(JNAPointerCache[foreground], WinUser.GW_HWNDPREV)
-					//User32.SetWindowPos(myHWND, Pointer.nativeValue(hwnd3), 0, 0, 0, 0, 2 or 1)
+					User32.SetWindowPos(myHWND, Pointer.nativeValue(hwnd3), 0, 0, 0, 0, 2 or 1)
 					User32.SetWindowPos(Pointer.nativeValue(hwnd3), myHWND, 0, 0, 0, 0, 2 or 1)
 					//makeTransparent(gameHWND)
-					println("APPLIED! $foreground / $gameHWND / $overlayHWND")
 				} else {
 					needsApply = true
-					println("NOT FOREGROUND! $foreground / $gameHWND / $overlayHWND")
 				}
 				Thread.sleep(200L)
 			}
@@ -124,6 +91,8 @@ class Overlay(val title: String = ThreadLocalRandom.current().nextLong().toStrin
 	}
 	
 	override fun create() {
+		Thread.currentThread().apply { name = "LeagueOfJire"; priority = Thread.MAX_PRIORITY }
+		
 		createRenderComponents()
 		configureRendering()
 		openHook()

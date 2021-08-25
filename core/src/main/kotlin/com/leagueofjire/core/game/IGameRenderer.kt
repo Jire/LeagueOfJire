@@ -1,7 +1,6 @@
 package com.leagueofjire.core.game
 
 import com.leagueofjire.ScreenPosition
-import com.leagueofjire.core.game.unit.IGameUnit
 import com.leagueofjire.core.offsets.LViewOffsets
 import com.leagueofjire.core.offsets.Offsets
 import com.leagueofjire.game.GameRenderer
@@ -14,10 +13,25 @@ object IGameRenderer : GameRenderer {
 	
 	override var width = -1
 	override var height = -1
-	override fun get(x: Float, y: Float, z: Float) = screen(x, y, z)
 	
 	override fun update(): Boolean {
 		TODO("Not yet implemented")
+	}
+	
+	override fun get(x: Float, y: Float, z: Float): ScreenPosition {
+		val coordX = x * viewProjMatrix[0] + y * viewProjMatrix[4] + z * viewProjMatrix[8] + viewProjMatrix[12]
+		val coordY = x * viewProjMatrix[1] + y * viewProjMatrix[5] + z * viewProjMatrix[9] + viewProjMatrix[13]
+		var coordW = x * viewProjMatrix[3] + y * viewProjMatrix[7] + z * viewProjMatrix[11] + viewProjMatrix[15]
+		
+		if (coordW < 1) coordW = 1F
+		
+		val middleX = coordX / coordW
+		val middleY = coordY / coordW
+		
+		val screenX = (width / 2F * middleX) + (middleX + width / 2F)
+		val screenY = -(height / 2F * middleY) + (middleY + height / 2F)
+		
+		return ScreenPosition(screenX, screenY)
 	}
 	
 	val viewMatrix = FloatArray(16)
@@ -62,25 +76,7 @@ object IGameRenderer : GameRenderer {
 		return true
 	}
 	
-	fun screen(unit: IGameUnit) = screen(unit.position.x, unit.position.y, unit.position.z)
-	
-	fun screen(x: Float, y: Float, z: Float): Vector2D {
-		val coordX = x * viewProjMatrix[0] + y * viewProjMatrix[4] + z * viewProjMatrix[8] + viewProjMatrix[12]
-		val coordY = x * viewProjMatrix[1] + y * viewProjMatrix[5] + z * viewProjMatrix[9] + viewProjMatrix[13]
-		var coordW = x * viewProjMatrix[3] + y * viewProjMatrix[7] + z * viewProjMatrix[11] + viewProjMatrix[15]
-		
-		if (coordW < 1) coordW = 1F
-		
-		val middleX = coordX / coordW
-		val middleY = coordY / coordW
-		
-		val screenX = (width / 2F * middleX) + (middleX + width / 2F)
-		val screenY = -(height / 2F * middleY) + (middleY + height / 2F)
-		
-		return Vector2D(screenX, screenY)
-	}
-	
-	fun onScreen(vector2D: ScreenPosition) = onScreen(vector2D.x, vector2D.y)
+	fun onScreen(screenPosition: ScreenPosition) = onScreen(screenPosition.x, screenPosition.y)
 	
 	fun onScreen(x: Int, y: Int, offsetX: Int = 0, offsetY: Int = 0) =
 		x > -offsetX && x < (width + offsetX) && y > -offsetY && y < (height + offsetY)

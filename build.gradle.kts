@@ -1,5 +1,5 @@
 plugins {
-	kotlin("jvm") version "1.5.21"
+	kotlin("jvm") version "1.5.30"
 	application
 }
 
@@ -9,6 +9,11 @@ val visuiVersion = "1.4.7"
 
 application {
 	mainClass.set("com.leagueofjire.app.LeagueOfJire")
+	applicationDefaultJvmArgs = listOf(
+		"-Xmx4g",
+		"-Xms4g"
+		/*, "-agentpath:\"C:\\Program Files\\YourKit Java Profiler 2021.3-b231\\bin\\win64\\yjpagent.dll\""*/
+	)
 }
 
 dependencies {
