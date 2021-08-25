@@ -2,14 +2,12 @@ package com.leagueofjire.overlay
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
-import com.leagueofjire.LeagueOfJire
 import com.leagueofjire.native.User32
 import com.leagueofjire.overlay.transparency.AccentFlags
 import com.leagueofjire.overlay.transparency.AccentStates
 import com.leagueofjire.overlay.transparency.WindowCompositionAttributeData
 import com.sun.jna.platform.win32.WinUser
 import org.lwjgl.glfw.GLFW
-import java.util.concurrent.ThreadLocalRandom
 import kotlin.concurrent.thread
 import kotlin.math.min
 import org.lwjgl.system.windows.User32 as LWJGLUser32

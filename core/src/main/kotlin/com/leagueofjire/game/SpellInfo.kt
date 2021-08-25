@@ -31,9 +31,9 @@ data class SpellInfo(
 	
 	companion object {
 		
-		val objectMapper = ObjectMapper().registerKotlinModule()
+		val objectMapper by lazy(LazyThreadSafetyMode.NONE) { ObjectMapper().registerKotlinModule() }
 		
-		val nameToData: Object2ObjectMap<String, SpellInfo> = Object2ObjectOpenHashMap()
+		val nameToData: Object2ObjectMap<String, SpellInfo> by lazy(LazyThreadSafetyMode.NONE) { Object2ObjectOpenHashMap() }
 		
 		fun load() {
 			loadFile("spells.json")

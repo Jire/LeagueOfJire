@@ -14,26 +14,17 @@ import com.leagueofjire.native.User32
 import com.leagueofjire.overlay.OverlayManager.myHWND
 import com.leagueofjire.overlay.transparency.AccentPolicy
 import com.leagueofjire.overlay.transparency.WindowCompositionAttributeData
-import com.leagueofjire.scripts.JireScriptCompilationConfiguration
-import com.leagueofjire.scripts.JireScriptEvaluationConfiguration
-import com.leagueofjire.scripts.ScriptContext
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinUser
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
 import org.jire.kna.JNAPointerCache
-import org.jire.kna.PointerCache
 import org.jire.kna.attach.AttachedModule
 import org.jire.kna.attach.AttachedProcess
 import org.lwjgl.system.windows.User32.HWND_TOPMOST
-import java.io.File
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.concurrent.thread
-import kotlin.script.experimental.api.EvaluationResult
-import kotlin.script.experimental.api.ResultWithDiagnostics
-import kotlin.script.experimental.host.toScriptSource
-import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 
 object Overlay : ApplicationAdapter() {
 	
@@ -51,18 +42,18 @@ object Overlay : ApplicationAdapter() {
 	lateinit var process: AttachedProcess
 	lateinit var base: AttachedModule
 	
-	lateinit var scriptContext: ScriptContext
+	private val bodies: ObjectList<() -> kotlin.Unit> = ObjectArrayList()
 	
-	private val bodies: ObjectList<Unit.() -> kotlin.Unit> = ObjectArrayList()
-	
-	operator fun invoke(body: Unit.() -> kotlin.Unit) {
+	fun renderHook(body: () -> kotlin.Unit) {
 		bodies.add(body)
 	}
 	
 	override fun render() {
-		if (!scriptContext.update() || GameTime.gameTime < 5F) return
+		if (!GameContext.update() || GameTime.gameTime < 5F) return
 		ScreenUtils.clear(0F, 0F, 0F, 0F)
-		scriptContext.render()
+		for (i in 0..bodies.lastIndex)
+			bodies[i]()
+		//scriptContext.render()
 	}
 	
 	private fun createCheatComponents() {
@@ -74,11 +65,7 @@ object Overlay : ApplicationAdapter() {
 		process = hook.process
 		base = hook.baseModule
 		
-		scriptContext = loadScriptContext()
 	}
-	
-	fun loadScriptContext() = ScriptContext(Overlay, GameTime, Renderer, Minimap, UnitManager, LocalPlayer, HoveredUnit)
-		.apply { load() }
 	
 	private fun createRenderComponents() {
 		val vw = Screen.OVERLAY_WIDTH.toFloat()
