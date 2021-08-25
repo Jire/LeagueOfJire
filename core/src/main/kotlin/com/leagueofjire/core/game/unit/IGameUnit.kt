@@ -55,6 +55,9 @@ open class IGameUnit : GameUnit, GameChampion {
 	override var isAlive = false
 	override var attackRange = -1F
 	
+	override val isChampion get() = info.isChampion
+	override val isImportantJungle get() = info.isImportantJungle
+	
 	var info: UnitInfo = UnitInfo.unknownInfo
 	
 	fun update(process: AttachedProcess, data: Pointer, deep: Boolean = false): Boolean {
@@ -120,7 +123,7 @@ open class IGameUnit : GameUnit, GameChampion {
 		return true
 	}
 	
-	var spells: Array<IGameChampionSpell> = defaultSpells
+	override var spells: Array<IGameChampionSpell> = defaultSpells
 	var itemSlots: Array<ItemSlot> = defaultItemSlots
 	
 	fun updateChampion(process: AttachedProcess, data: Pointer, deep: Boolean = false) =

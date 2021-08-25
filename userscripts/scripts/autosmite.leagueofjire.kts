@@ -1,6 +1,4 @@
-import com.leagueofjire.game.unit.champion.spell.GameChampionSpells
-
-val toggleKey: Int = KeyEvent.VK_BACK_SPACE
+val toggleKey = KeyEvent.VK_BACK_SPACE
 
 var lastToggle = -1F
 var enabled = false
@@ -21,10 +19,10 @@ render {
 }
 
 eachUnit {
-	val smite = me.spell(GameChampionSpells.SMITE) ?: return@eachUnit
-	if (!enabled || !isVisible || !isAlive || !info.isImportantJungle) return@eachUnit
-	
 	if (!me.isAlive) return@eachUnit
+	
+	val smite = me.spell(SMITE) ?: return@eachUnit
+	if (!enabled || !isVisible || !isAlive || !isImportantJungle) return@eachUnit
 	
 	if (health > smite.value || !smite.canCast(time)/* || !withinDistance(player, smite.info.castRange)*/) return@eachUnit
 	

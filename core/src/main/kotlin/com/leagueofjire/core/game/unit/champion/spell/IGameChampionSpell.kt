@@ -1,5 +1,6 @@
 package com.leagueofjire.core.game.unit.champion.spell
 
+import com.badlogic.gdx.graphics.Texture
 import com.leagueofjire.core.game.RiotStrings
 import com.leagueofjire.game.GameTime
 import com.leagueofjire.game.unit.champion.spell.GameChampionSpell
@@ -31,6 +32,7 @@ class IGameChampionSpell(val slot: Int) : GameChampionSpell {
 	override var level = -1
 	override var value = -1F
 	override fun canCast(time: GameTime) = level > 0 && time.seconds >= readyAtSeconds
+	override val sprite: Texture? get() = info.loadIcon
 	
 	var type: SummonerSpellType = SummonerSpellType.NONE
 	var info: SpellInfo = SpellInfo.unknownSpell

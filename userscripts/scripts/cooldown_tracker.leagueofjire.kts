@@ -1,10 +1,8 @@
-import com.leagueofjire.core.game.unit.champion.spell.IGameChampionSpell
-import com.leagueofjire.core.game.unit.champion.spell.SpellInfo
-import com.leagueofjire.core.util.round
+import com.leagueofjire.game.unit.champion.spell.GameChampionSpell
 
-val iconSize: Float = 28F
-val readyDarkness: Float = 0.8F
-val unreadyDarkness: Float = 0.4F
+val iconSize = 28F
+val readyDarkness = 0.8F
+val unreadyDarkness = 0.4F
 val textColor: Color = Color.WHITE
 
 val yOffset = iconSize * 2
@@ -18,24 +16,22 @@ eachChampion {
 		var xOffset = -yOffset
 		
 		for (spell in spells) {
-			drawSpell(spell, x + xOffset, drawY)
+			spell.draw(x + xOffset, drawY)
 			xOffset += iconSize
 		}
 	}
 }
 
-fun drawSpell(spell: IGameChampionSpell, x: Float, y: Float) {
-	val spellData = spell.info
-	if (spellData === SpellInfo.unknownSpell) return
-	val icon = spellData.loadIcon ?: return
+fun GameChampionSpell.draw(x: Float, y: Float) {
+	val sprite = sprite ?: return
 	
-	val levelled = spell.level >= 1
-	val remaining = spell.readyAtSeconds - time.seconds
+	val levelled = level >= 1
+	val remaining = readyAtSeconds - time.seconds
 	val ready = remaining <= 0
 	
 	if (!levelled || !ready) sprites.setDarkness(unreadyDarkness)
 	
-	sprites.drawSprite(icon, x - iconSize, y, iconSize, iconSize)
+	sprite.draw(x - iconSize, y, iconSize, iconSize)
 	sprites.setDarkness(readyDarkness)
 	
 	if (levelled && !ready) {

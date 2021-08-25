@@ -6,14 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.leagueofjire.ScreenPosition
 import com.leagueofjire.core.game.IGameContext
 import com.leagueofjire.game.GameContext
+import com.leagueofjire.game.unit.GameUnit
+import com.leagueofjire.game.unit.champion.GameChampion
 import com.leagueofjire.input.KeyboardContext
 import com.leagueofjire.input.MouseContext
 import com.leagueofjire.overlay.OverlayContext
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
-import java.awt.MouseInfo
-import java.awt.Point
-import java.awt.Robot
 import kotlin.script.experimental.annotations.KotlinScript
 
 @KotlinScript(
@@ -37,7 +36,8 @@ abstract class Script(
 	}
 	
 	fun render() {
-		for (i in 0..doRenders.lastIndex) doRenders[i](overlayContext)
+		for (i in 0..doRenders.lastIndex)
+			doRenders[i](overlayContext)
 		
 		for (i in 0..gameContext.unitManager.champions.lastIndex) {
 			val champion = gameContext.unitManager.champions[i] ?: continue
@@ -51,15 +51,15 @@ abstract class Script(
 		}
 	}
 	
-	private val eachUnits: ObjectList<UnitHook> = ObjectArrayList()
+	private val eachUnits: ObjectList<GameUnit.() -> Unit> = ObjectArrayList()
 	
-	fun eachUnit(eachUnit: UnitHook) {
+	fun eachUnit(eachUnit: GameUnit.() -> Unit) {
 		eachUnits.add(eachUnit)
 	}
 	
-	private val eachChampions: ObjectList<UnitHook> = ObjectArrayList()
+	private val eachChampions: ObjectList<GameChampion.() -> Unit> = ObjectArrayList()
 	
-	fun eachChampion(eachChampion: UnitHook) {
+	fun eachChampion(eachChampion: GameChampion.() -> Unit) {
 		eachChampions.add(eachChampion)
 	}
 	
@@ -68,18 +68,23 @@ abstract class Script(
 			ifOnScreen()
 	}
 	
-	fun SpriteBatch.drawSprite(texture: Texture, x: Float, y: Float, width: Float, height: Float) =
-		draw(texture, x, y, width, height, 0, 0, texture.width, texture.height, false, true)
+	fun Texture.draw(x: Float, y: Float, width: Float, height: Float) = sprites.draw(this, x, y, width, height)
+	
+	fun SpriteBatch.drawSprite(
+		texture: Texture,
+		x: Float, y: Float,
+		width: Float = texture.width.toFloat(), height: Float = texture.height.toFloat()
+	) = draw(texture, x, y, width, height, 0, 0, texture.width, texture.height, false, true)
 	
 	fun SpriteBatch.setDarkness(percent: Float) = setColor(percent, percent, percent, 1F)
 	
-	fun BitmapFont.text(text: String, x: Float, y: Float, batch: SpriteBatch = overlayContext.sprites) =
+	fun BitmapFont.text(text: String, x: Float, y: Float, batch: SpriteBatch = sprites) =
 		draw(batch, text, x, y)
 	
-	fun BitmapFont.text(text: String, x: Int, y: Int, batch: SpriteBatch = overlayContext.sprites) =
+	fun BitmapFont.text(text: String, x: Int, y: Int, batch: SpriteBatch = sprites) =
 		draw(batch, text, x.toFloat(), y.toFloat())
 	
-	fun BitmapFont.text(text: String, screenPosition: ScreenPosition, batch: SpriteBatch = overlayContext.sprites) =
+	fun BitmapFont.text(text: String, screenPosition: ScreenPosition, batch: SpriteBatch = sprites) =
 		text(text, screenPosition.x, screenPosition.y, batch)
 	
 }

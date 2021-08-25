@@ -6,6 +6,8 @@ import com.leagueofjire.game.unit.champion.spell.GameChampionSpells
 
 interface GameChampion : GameUnit {
 	
+	val spells: Array<out GameChampionSpell>
+	
 	fun spell(spell: GameChampionSpells): GameChampionSpell?
 	
 }

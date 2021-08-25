@@ -8,7 +8,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 
-data class SpellInfo(
+open class SpellInfo(
 	val name: String,
 	val icon: String,
 	val flags: Int,
@@ -21,8 +21,8 @@ data class SpellInfo(
 	val travelTime: Float,
 	val projectDestination: Boolean
 ) {
-	val hasIcon = icon.isNotEmpty()
-	val loadIcon by lazy(LazyThreadSafetyMode.NONE) {
+	open val hasIcon = icon.isNotEmpty()
+	open val loadIcon by lazy(LazyThreadSafetyMode.NONE) {
 		if (!hasIcon) return@lazy null
 		val resource = SpellInfo::class.java.getResourceAsStream("icons_spells/${icon.lowercase()}.png")
 			?: return@lazy null
@@ -49,10 +49,13 @@ data class SpellInfo(
 			data.forEach { nameToData[it.name.lowercase()] = it }
 		}
 		
-		val unknownSpell = SpellInfo(
+		val unknownSpell = object : SpellInfo(
 			"", "", 0, 0F, 0F,
 			0F, 0F, 0F, 0F, 0F, false
-		)
+		) {
+			override val hasIcon = false
+			override val loadIcon: Texture? = null
+		}
 		
 	}
 	

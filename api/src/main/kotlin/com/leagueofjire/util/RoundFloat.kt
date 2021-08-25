@@ -1,4 +1,4 @@
-package com.leagueofjire.core.util
+package com.leagueofjire.util
 
 import kotlin.math.round
 

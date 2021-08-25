@@ -31,4 +31,7 @@ interface GameUnit {
 	val isAlive: Boolean
 	val attackRange: Float
 	
+	val isChampion: Boolean
+	val isImportantJungle: Boolean
+	
 }

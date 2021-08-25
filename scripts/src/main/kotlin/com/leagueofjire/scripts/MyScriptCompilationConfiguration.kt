@@ -2,14 +2,20 @@ package com.leagueofjire.scripts
 
 import kotlin.script.experimental.api.*
 
-object MyScriptCompilationConfiguration : ScriptCompilationConfiguration({
+internal object MyScriptCompilationConfiguration : ScriptCompilationConfiguration({
 	defaultImports(
-		"com.leagueofjire.game.*",
-		"com.leagueofjire.input.*",
-		"com.leagueofjire.util.*",
-		"com.leagueofjire.overlay.Screen",
-		"com.badlogic.gdx.graphics.Color",
 		"java.awt.event.KeyEvent",
+		"com.badlogic.gdx.graphics.Color",
+		"com.leagueofjire.ScreenPosition",
+		"com.leagueofjire.util.*",
+		"com.leagueofjire.input.*",
+		"com.leagueofjire.overlay.*",
+		"com.leagueofjire.game.*",
+		"com.leagueofjire.game.unit.*",
+		"com.leagueofjire.game.unit.champion.*",
+		"com.leagueofjire.game.unit.champion.item.*",
+		"com.leagueofjire.game.unit.champion.spell.*",
+		"com.leagueofjire.game.unit.champion.spell.GameChampionSpells.*",
 	)
 	ide {
 		acceptedLocations(ScriptAcceptedLocation.Everywhere)
