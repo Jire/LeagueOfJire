@@ -10,7 +10,7 @@ val yOffset = iconSize * 2
 val xTextOffset = -iconSize + (iconSize / 4) - 4
 val yTextOffset = (iconSize / 2) + 2
 
-scriptContext.championHook {
+eachChampion {
 	if (isVisible && isAlive) renderer.screen(this).use {
 		val drawY = y + yOffset
 		var xOffset = -yOffset

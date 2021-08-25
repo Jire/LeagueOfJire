@@ -4,4 +4,6 @@ dependencies {
 	
 	runtimeOnly(kotlin("script-runtime"))
 	runtimeOnly(project(":userscripts"))
+	
+	implementation("io.github.classgraph:classgraph:4.8.115")
 }

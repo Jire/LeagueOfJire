@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.leagueofjire.game.*
 import com.leagueofjire.overlay.Overlay
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import it.unimi.dsi.fastutil.objects.ObjectList
 import java.awt.MouseInfo
 import java.awt.Point
 import java.awt.Robot
@@ -17,7 +19,6 @@ import kotlin.script.experimental.annotations.KotlinScript
 	//evaluationConfiguration = JireScriptEvaluationConfiguration::class
 )
 abstract class Script(
-	val scriptContext: ScriptContext,
 	val overlay: Overlay,
 	val gameTime: GameTime,
 	val renderer: Renderer,
@@ -25,8 +26,41 @@ abstract class Script(
 	val unitManager: UnitManager,
 	val localPlayer: LocalPlayer,
 	val hoveredUnit: HoveredUnit,
-	val robot: Robot = Robot().apply { autoDelay = 1; isAutoWaitForIdle = true }
+	val robot: Robot
 ) {
+	
+	private val renderHooks: ObjectList<Overlay.() -> Unit> = ObjectArrayList()
+	
+	fun render(hook: Overlay.() -> Unit) {
+		renderHooks.add(hook)
+	}
+	
+	fun render() {
+		for (i in 0..renderHooks.lastIndex) renderHooks[i](overlay)
+		
+		for (i in 0..unitManager.champions.lastIndex) {
+			val champion = unitManager.champions[i] ?: continue
+			for (ci in 0..championHooks.lastIndex)
+				championHooks[ci](champion)
+		}
+		for (entry in unitManager.unitsIt) {
+			val unit = entry.value
+			for (i in 0..unitHooks.lastIndex)
+				unitHooks[i](unit)
+		}
+	}
+	
+	private val unitHooks: ObjectList<UnitHook> = ObjectArrayList()
+	
+	fun eachUnit(hook: UnitHook) {
+		unitHooks.add(hook)
+	}
+	
+	private val championHooks: ObjectList<UnitHook> = ObjectArrayList()
+	
+	fun eachChampion(hook: UnitHook) {
+		championHooks.add(hook)
+	}
 	
 	fun key(keycode: Int) {
 		robot.keyPress(keycode)

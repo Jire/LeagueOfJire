@@ -7,8 +7,8 @@ val onMinimapChars: Int = 3
 val onWorld: Boolean = true
 val onWorldColor: Color = Color.WHITE
 
-scriptContext.championHook {
-	if (isVisible || !info.isChampion || name.isEmpty()) return@championHook
+eachChampion {
+	if (isVisible || !info.isChampion || name.isEmpty()) return@eachChampion
 	
 	val timeMissing = (gameTime.gameTime - lastVisibleAt).toInt()
 	
