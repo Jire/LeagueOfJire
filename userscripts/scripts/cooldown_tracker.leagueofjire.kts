@@ -1,5 +1,3 @@
-import com.leagueofjire.game.unit.champion.spell.GameChampionSpell
-
 val iconSize = 28F
 val readyDarkness = 0.8F
 val unreadyDarkness = 0.4F
