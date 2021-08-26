@@ -1,7 +1,7 @@
 package com.leagueofjire.core.game
 
 import com.leagueofjire.core.game.unit.IGameUnit
-import com.leagueofjire.core.offsets.LViewOffsets
+import com.leagueofjire.core.offsets.Offsets
 import com.leagueofjire.core.util.free
 import com.leagueofjire.game.GameUnitManager
 import com.leagueofjire.game.unit.GameUnit
@@ -41,10 +41,10 @@ object IGameUnitManager : GameUnitManager {
 	private val unitData = Pointer.alloc(0x4000)
 	
 	private fun scanUnits(process: AttachedProcess, objectManager: Pointer): Boolean {
-		val numMissiles = objectManager.getInt(LViewOffsets.ObjectMapCount)
+		val numMissiles = objectManager.getInt(Offsets.ObjectMapCount)
 		if (numMissiles <= 0) return false
 		
-		val rootUnitAddress = objectManager.getInt(LViewOffsets.ObjectMapRoot).toLong()
+		val rootUnitAddress = objectManager.getInt(Offsets.ObjectMapRoot).toLong()
 		if (rootUnitAddress <= 0) return false
 		
 		unitsRead = 0
@@ -67,9 +67,9 @@ object IGameUnitManager : GameUnitManager {
 		if (!process.read(address, data, 0x30)) return
 		if (!data.readable()) return
 		
-		val networkID = data.getInt(LViewOffsets.ObjectMapNodeNetId)
+		val networkID = data.getInt(Offsets.ObjectMapNodeNetId)
 		if (networkID >= 0x40000000) {
-			val unitAddress = data.getInt(LViewOffsets.ObjectMapNodeObject).toLong()
+			val unitAddress = data.getInt(Offsets.ObjectMapNodeObject).toLong()
 			updateUnit(process, networkID, unitAddress)
 		}
 		
@@ -115,7 +115,7 @@ object IGameUnitManager : GameUnitManager {
 	}
 	
 	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
-		val objectManagerOffset = process.int(base.address + LViewOffsets.ObjectManager).toLong()
+		val objectManagerOffset = process.int(base.address + Offsets.ObjectManager).toLong()
 		if (objectManagerOffset <= 0) return false
 		
 		val objectManager = Pointer.alloc(256)

@@ -1,7 +1,7 @@
 package com.leagueofjire.core.game
 
 import com.leagueofjire.ScreenPosition
-import com.leagueofjire.core.offsets.LViewOffsets
+import com.leagueofjire.core.offsets.Offsets
 import com.leagueofjire.game.GameRenderer
 import org.jire.kna.Pointer
 import org.jire.kna.attach.AttachedModule
@@ -40,16 +40,16 @@ object IGameRenderer : GameRenderer {
 	private val data = Pointer.alloc(128)
 	
 	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
-		val renderBase = process.int(base.address + LViewOffsets.Renderer).toLong()
+		val renderBase = process.int(base.address + Offsets.Renderer).toLong()
 		if (renderBase <= 0) return false
 		
 		if (!process.read(renderBase, data, 128)) return false
 		if (!data.readable()) return false
 		
-		width = data.getInt(LViewOffsets.RendererWidth)
-		height = data.getInt(LViewOffsets.RendererHeight)
+		width = data.getInt(Offsets.RendererWidth)
+		height = data.getInt(Offsets.RendererHeight)
 		
-		if (!process.read(base.address + LViewOffsets.ViewProjMatrices, data, 128)) return false
+		if (!process.read(base.address + Offsets.ViewProjMatrices, data, 128)) return false
 		return updateMatrix(data)
 	}
 	

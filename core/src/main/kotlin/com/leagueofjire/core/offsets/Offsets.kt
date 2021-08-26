@@ -1,6 +1,6 @@
 package com.leagueofjire.core.offsets
 
-object LViewOffsets {
+object Offsets {
 	
 	const val GameTime = 0x30d2c58L
 	const val ObjectManager = 0x183E1A0L
