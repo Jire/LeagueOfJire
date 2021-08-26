@@ -1,6 +1,12 @@
+val gdxVersion: String by rootProject.extra
+val fastutil: String by rootProject.extra
+
 dependencies {
-	implementation(project(":api"))
-	implementation(project(":core"))
+	compileOnly(project(":api"))
+	compileOnly(project(":core"))
 	
-	implementation(kotlin("scripting-common"))
+	compileOnly(kotlin("scripting-common"))
+	
+	compileOnly("com.badlogicgames.gdx:gdx:$gdxVersion")
+	compileOnly(fastutil)
 }
