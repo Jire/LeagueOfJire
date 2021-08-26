@@ -4,6 +4,19 @@ _Free & Open-Source External Scripting Platform_
 
 ---
 
+### What features does this have?
+
+All of the feature's source-code can be found
+in [the `userscripts` module](https://github.com/Jire/leagueofjire/tree/main/userscripts/scripts).
+
+**Auto-Smite:** _Instantly casts smite on important jungle monsters_
+
+**Cooldown Tracker:** _Shows an overlay of all champion cooldowns_
+
+![](https://i.imgur.com/2e7RXyV.png)
+
+**Last-Position Tracker:** _Shows the last position and amount of time that enemies have been in fog-of-war_
+
 ### Why is this free & open-source?
 
 Basically this project was rushed proof-of-concept with little regard for code quality, and still uses the
