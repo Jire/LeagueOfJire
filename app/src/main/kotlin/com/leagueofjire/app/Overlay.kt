@@ -69,25 +69,12 @@ class Overlay(
 		makeTransparent(myHWND)
 		makeClickthrough(myHWND)
 		
-		val gameHWND = Pointer.nativeValue(gameContext.hook.window.pointer)
-		thread(priority = Thread.MIN_PRIORITY) {
-			var needsApply = true
-			while (!Thread.interrupted()) {
-				val foreground = User32.GetForegroundWindow()
-				if (foreground == gameHWND) {
-					if (!needsApply) continue
-					needsApply = false
-					
-					val hwnd3 = User32.GetWindow(JNAPointerCache[foreground], WinUser.GW_HWNDPREV)
-					User32.SetWindowPos(myHWND, Pointer.nativeValue(hwnd3), 0, 0, 0, 0, 2 or 1)
-					User32.SetWindowPos(Pointer.nativeValue(hwnd3), myHWND, 0, 0, 0, 0, 2 or 1)
-					//makeTransparent(gameHWND)
-				} else {
-					needsApply = true
-				}
-				Thread.sleep(200L)
-			}
-		}
+		User32.SetWindowPos(
+			myHWND, HWND_TOPMOST,
+			Screen.OVERLAY_OFFSET, Screen.OVERLAY_OFFSET,
+			Screen.OVERLAY_WIDTH, Screen.OVERLAY_HEIGHT,
+			0
+		)
 	}
 	
 	override fun create() {
