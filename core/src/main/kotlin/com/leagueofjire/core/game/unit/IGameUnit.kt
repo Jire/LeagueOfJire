@@ -3,7 +3,6 @@ package com.leagueofjire.core.game.unit
 import com.leagueofjire.core.game.RiotStrings
 import com.leagueofjire.core.game.unit.champion.item.ItemSlot
 import com.leagueofjire.core.game.unit.champion.spell.IGameChampionSpell
-import com.leagueofjire.core.offsets.GameObject
 import com.leagueofjire.core.offsets.LViewOffsets
 import com.leagueofjire.game.unit.GameUnit
 import com.leagueofjire.core.util.free
@@ -66,29 +65,29 @@ open class IGameUnit : GameUnit, GameChampion {
 		if (!data.readable()) return false
 		
 		data.run {
-			team = getShort(GameObject.ObjTeam).toInt()
-			position.x = getFloat(GameObject.ObjPos)
-			position.y = getFloat(GameObject.ObjPos + 4)
-			position.z = getFloat(GameObject.ObjPos + 8)
-			health = getFloat(GameObject.HP)
-			maxHealth = getFloat(GameObject.ObjMaxHealth)
-			baseAttack = getFloat(GameObject.ObjBaseAtk)
-			bonusAttack = getFloat(GameObject.ObjBonusAtk)
-			armor = getFloat(GameObject.ObjArmor)
-			bonusArmor = getFloat(GameObject.ObjBonusArmor)
-			magicResist = getFloat(GameObject.ObjMagicRes)
-			duration = getFloat(GameObject.ObjExpiry)
-			isVisible = getBoolean(GameObject.ObjVisibility)
-			objectIndex = getShort(GameObject.ObjIndex).toInt()
-			crit = getFloat(GameObject.ObjCrit)
-			critMulti = getFloat(GameObject.ObjCritMulti)
-			abilityPower = getFloat(GameObject.ObjAbilityPower)
-			attackSpeedMulti = getFloat(GameObject.ObjAtkSpeedMulti)
-			movementSpeed = getFloat(GameObject.ObjMoveSpeed)
-			networkID = getInt(GameObject.ObjNetworkID)
-			attackRange = getFloat(GameObject.ObjAtkRange)
+			team = getShort(LViewOffsets.ObjTeam).toInt()
+			position.x = getFloat(LViewOffsets.ObjPos)
+			position.y = getFloat(LViewOffsets.ObjPos + 4)
+			position.z = getFloat(LViewOffsets.ObjPos + 8)
+			health = getFloat(LViewOffsets.ObjHealth)
+			maxHealth = getFloat(LViewOffsets.ObjMaxHealth)
+			baseAttack = getFloat(LViewOffsets.ObjBaseAtk)
+			bonusAttack = getFloat(LViewOffsets.ObjBonusAtk)
+			armor = getFloat(LViewOffsets.ObjArmor)
+			bonusArmor = getFloat(LViewOffsets.ObjBonusArmor)
+			magicResist = getFloat(LViewOffsets.ObjMagicRes)
+			duration = getFloat(LViewOffsets.ObjExpiry)
+			isVisible = getBoolean(LViewOffsets.ObjVisibility)
+			objectIndex = getShort(LViewOffsets.ObjIndex).toInt()
+			crit = getFloat(LViewOffsets.ObjCrit)
+			critMulti = getFloat(LViewOffsets.ObjCritMulti)
+			abilityPower = getFloat(LViewOffsets.ObjAbilityPower)
+			attackSpeedMulti = getFloat(LViewOffsets.ObjAtkSpeedMulti)
+			movementSpeed = getFloat(LViewOffsets.ObjMoveSpeed)
+			networkID = getInt(LViewOffsets.ObjNetworkID)
+			attackRange = getFloat(LViewOffsets.ObjAtkRange)
 			
-			spawnCount = getInt(GameObject.ObjSpawnCount)
+			spawnCount = getInt(LViewOffsets.ObjSpawnCount)
 			isAlive = spawnCount % 2 == 0
 		}
 		
@@ -104,7 +103,7 @@ open class IGameUnit : GameUnit, GameChampion {
 	}
 	
 	private fun deepUpdate(process: AttachedProcess, data: Pointer): Boolean {
-		val nameAddress = data.getInt(GameObject.ObjName).toLong()
+		val nameAddress = data.getInt(LViewOffsets.ObjName).toLong()
 		if (nameAddress <= 0) return false
 		
 		name = RiotStrings().riotString(process, nameAddress)
@@ -132,7 +131,7 @@ open class IGameUnit : GameUnit, GameChampion {
 	private fun updateSpells(process: AttachedProcess, data: Pointer, deep: Boolean): Boolean {
 		if (spells === defaultSpells) spells = Array(6) { IGameChampionSpell(it) }
 		for (spell in spells) {
-			val address = data.getInt(GameObject.ObjSpellBook + (spell.slot * 4)).toLong()
+			val address = data.getInt(LViewOffsets.ObjSpellBook + (spell.slot * 4)).toLong()
 			if (address <= 0) return false
 			if (!spell.load(process, address, deep)) return false
 		}
@@ -142,7 +141,7 @@ open class IGameUnit : GameUnit, GameChampion {
 	private fun updateItems(process: AttachedProcess): Boolean {
 		if (true) return true
 		
-		val itemsAddress = process.int(address + GameObject.ObjItemList).toLong()
+		val itemsAddress = process.int(address + LViewOffsets.ObjItemList).toLong()
 		if (itemsAddress <= 0) return false
 		
 		val itemsData = Pointer.alloc(0x100)

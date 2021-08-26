@@ -2,7 +2,6 @@ package com.leagueofjire.core.game
 
 import com.leagueofjire.core.game.unit.IGameUnit
 import com.leagueofjire.core.offsets.LViewOffsets
-import com.leagueofjire.core.offsets.Offsets
 import com.leagueofjire.core.util.free
 import com.leagueofjire.game.GameUnitManager
 import com.leagueofjire.game.unit.GameUnit
@@ -116,7 +115,7 @@ object IGameUnitManager : GameUnitManager {
 	}
 	
 	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
-		val objectManagerOffset = process.int(base.address + Offsets.ObjectManager).toLong()
+		val objectManagerOffset = process.int(base.address + LViewOffsets.ObjectManager).toLong()
 		if (objectManagerOffset <= 0) return false
 		
 		val objectManager = Pointer.alloc(256)

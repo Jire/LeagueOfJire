@@ -30,15 +30,16 @@ allprojects {
 	
 	repositories {
 		mavenCentral()
-		maven("https://dl.bintray.com/michaelbull/maven")
-		maven("https://jitpack.io")
-		maven("https://plugins.gradle.org/m2/")
 	}
 	
 	dependencies {
-		implementation(kotlin("stdlib"))
+		implementation(kotlin("stdlib", "1.5.30"))
 		
-		implementation("org.jire", "kna", "0.4.2")
+		implementation("org.jire", "kna", "0.4.2") {
+			exclude(module = "kotlin-stdlib")
+			exclude(module = "kotlin-stdlib-jdk8")
+			exclude(module = "kotlin-reflect")
+		}
 		
 		implementation("net.java.dev.jna:jna:$jnaVersion")
 		implementation("net.java.dev.jna:jna-platform:$jnaVersion")
@@ -56,6 +57,19 @@ allprojects {
 		implementation("com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop")
 		implementation("com.badlogicgames.gdx:gdx-freetype:$gdxVersion")
 		
-		implementation("net.openhft:chronicle-core:2.20.127.1")
+		implementation("net.openhft:chronicle-core:2.21.91")
+	}
+	
+	java {
+		sourceCompatibility = JavaVersion.VERSION_11
+		targetCompatibility = JavaVersion.VERSION_11
+	}
+	
+	tasks {
+		compileKotlin {
+			kotlinOptions {
+				jvmTarget = "11"
+			}
+		}
 	}
 }

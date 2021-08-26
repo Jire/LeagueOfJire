@@ -2,7 +2,7 @@ package com.leagueofjire.core.game
 
 import com.leagueofjire.ScreenPosition
 import com.leagueofjire.core.game.unit.IGameUnit
-import com.leagueofjire.core.offsets.Offsets
+import com.leagueofjire.core.offsets.LViewOffsets
 import com.leagueofjire.game.GameMinimap
 import org.jire.kna.Pointer
 import org.jire.kna.attach.AttachedModule
@@ -25,20 +25,20 @@ object IGameMinimap : GameMinimap {
 	override fun get(x: Float, y: Float, z: Float) = screen(x, y, z)
 	
 	fun update(process: AttachedProcess, base: AttachedModule): Boolean {
-		val minimapObject = process.int(base.address + Offsets.MinimapObject).toLong()
+		val minimapObject = process.int(base.address + LViewOffsets.MinimapObject).toLong()
 		if (minimapObject <= 0) return false
 		
-		val minimapHUD = process.int(minimapObject + Offsets.MinimapObjectHud).toLong()
+		val minimapHUD = process.int(minimapObject + LViewOffsets.MinimapObjectHud).toLong()
 		if (minimapHUD <= 0) return false
 		
 		if (!process.read(minimapHUD, data, 0x80)) return false
 		if (!data.readable()) return false
 		
-		x = data.getFloat(Offsets.MinimapHudPos)
-		y = data.getFloat(Offsets.MinimapHudPos + 4)
+		x = data.getFloat(LViewOffsets.MinimapHudPos)
+		y = data.getFloat(LViewOffsets.MinimapHudPos + 4)
 		
-		width = data.getFloat(Offsets.MinimapHudSize)
-		height = data.getFloat(Offsets.MinimapHudSize + 4)
+		width = data.getFloat(LViewOffsets.MinimapHudSize)
+		height = data.getFloat(LViewOffsets.MinimapHudSize + 4)
 		
 		return true
 	}
