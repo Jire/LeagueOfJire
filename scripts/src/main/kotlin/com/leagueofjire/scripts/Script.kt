@@ -86,7 +86,7 @@ abstract class Script(
 			ifOnScreen()
 	}
 	
-	fun Texture.draw(x: Float, y: Float, width: Float, height: Float) = sprites.draw(this, x, y, width, height)
+	fun Texture.draw(x: Float, y: Float, width: Float, height: Float) = sprites.drawSprite(this, x, y, width, height)
 	
 	fun SpriteBatch.drawSprite(
 		texture: Texture,
