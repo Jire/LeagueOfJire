@@ -43,7 +43,7 @@ dependencies {
 	
 	implementation(fastutil)
 	
-	implementation("io.github.classgraph:classgraph:4.8.115")
+	implementation("io.github.classgraph:classgraph:4.8.153")
 }
 
 application {

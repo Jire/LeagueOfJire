@@ -17,44 +17,34 @@
  */
 
 plugins {
-	idea
-	kotlin("jvm")
+    idea
+    kotlin("jvm")
 }
 
-val jnaVersion by extra("5.9.0")
-val gdxVersion by extra("1.10.0")
+val jnaVersion by extra("5.12.1")
+val gdxVersion by extra("1.11.0")
 
-val chronicle by extra("net.openhft:chronicle-core:2.21.91")
-val fastutil by extra("it.unimi.dsi:fastutil:8.5.4")
+val chronicle by extra("net.openhft:chronicle-core:2.24ea3")
+val fastutil by extra("it.unimi.dsi:fastutil:8.5.11")
 
 allprojects {
-	apply(plugin = "kotlin")
-	
-	group = "com.leagueofjire"
-	version = "1.0.0"
-	description = "Free & Open-Source External Scripting Platform"
-	
-	repositories {
-		mavenCentral()
-	}
-	
-	java {
-		sourceCompatibility = JavaVersion.VERSION_11
-		targetCompatibility = JavaVersion.VERSION_11
-	}
-	
-	tasks {
-		compileKotlin {
-			kotlinOptions.jvmTarget = "11"
-		}
-		compileTestKotlin {
-			kotlinOptions.jvmTarget = "11"
-		}
-	}
+    apply(plugin = "kotlin")
+
+    group = "com.leagueofjire"
+    version = "1.0.0"
+    description = "Free & Open-Source External Scripting Platform"
+
+    repositories {
+        mavenCentral()
+    }
+
+    kotlin {
+        jvmToolchain(19)
+    }
 }
 
 subprojects {
-	dependencies {
-		implementation(rootProject)
-	}
+    dependencies {
+        implementation(rootProject)
+    }
 }

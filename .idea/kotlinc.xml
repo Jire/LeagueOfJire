@@ -6,7 +6,7 @@
   <component name="KotlinCommonCompilerArguments">
     <option name="suppressWarnings" value="true" />
   </component>
-  <component name="KotlinCompilerSettings">
-    <option name="additionalArguments" value="" />
+  <component name="KotlinJpsPluginSettings">
+    <option name="version" value="1.8.0" />
   </component>
 </project>
