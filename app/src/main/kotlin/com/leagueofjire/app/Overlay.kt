@@ -114,7 +114,6 @@ class Overlay(
 			setTitle(title)
 			setWindowPosition(0, 0)
 			setWindowedMode(Screen.WIDTH, Screen.HEIGHT)
-			useOpenGL3(true, 4, 6)
 			setResizable(false)
 			setDecorated(false)
 			useVsync(false)
