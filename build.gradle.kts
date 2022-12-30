@@ -21,6 +21,10 @@ plugins {
     kotlin("jvm")
 }
 
+val slf4jVersion by extra("2.0.6")
+val slf4j by extra("org.slf4j:slf4j-api:$slf4jVersion")
+val slf4jSimple by extra("org.slf4j:slf4j-simple:$slf4jVersion")
+
 val jnaVersion by extra("5.12.1")
 val gdxVersion by extra("1.11.0")
 

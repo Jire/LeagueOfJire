@@ -140,7 +140,8 @@ class Overlay(
 			AccentFlags = AccentFlags.Transparent
 		)
 	)
-	
+
+	//WS_EX_TRANSPARENT | WS_EX_LAYERED
 	fun makeUndecorated(myHWND: Long) = User32.SetWindowLongA(
 		myHWND,
 		GWL_EXSTYLE,
