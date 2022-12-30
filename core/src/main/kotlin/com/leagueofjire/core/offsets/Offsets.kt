@@ -43,7 +43,8 @@ object Offsets {
 - At 02C4 you get the index of the source (int16) for example the player or a monster.
      */
 
-    const val GameTime = 0x30d2c58L
+    const val GameTime = 0x3143C44L
+    const val GameVersion = 0x315A3B0L
     const val ObjectManager = 0x18ADAD8L
     const val LocalPlayer = 0x314A404L
     const val UnderMouseObject = 0x24FB364L
@@ -135,16 +136,16 @@ object Offsets {
     const val RendererHeight = 0xCL
 
     const val SpellSlotLevel = 0x1CL
-    const val SpellSlotTime = 0x24
-    const val SpellSlotCharges = 0x54
-    const val SpellSlotTimeCharge = 0x74
-    const val SpellSlotDamage = 0x94
-    const val SpellSlotSpellInfo = 0x120
-    const val SpellInfoSpellData = 0x40
-    const val SpellDataSpellName = 0x6C
-    const val SpellDataMissileName = 0x6C
-    const val SpellSlotSmiteTimer = 0x60
-    const val SpellSlotSmiteCharges = 0x54
+    const val SpellSlotTime = 0x24L
+    const val SpellSlotCharges = 0x54L
+    const val SpellSlotTimeCharge = 0x74L
+    const val SpellSlotDamage = 0x94L
+    const val SpellSlotSpellInfo = 0x120L
+    const val SpellInfoSpellData = 0x40L
+    const val SpellDataSpellName = 0x6CL
+    const val SpellDataMissileName = 0x6CL
+    const val SpellSlotSmiteTimer = 0x60L
+    const val SpellSlotSmiteCharges = 0x54L
 
     const val ObjectMapCount = 0x2CL
     const val ObjectMapRoot = 0x28L

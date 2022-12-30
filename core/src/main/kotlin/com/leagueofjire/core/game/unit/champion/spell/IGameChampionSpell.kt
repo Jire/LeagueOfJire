@@ -20,6 +20,12 @@ package com.leagueofjire.core.game.unit.champion.spell
 
 import com.badlogic.gdx.graphics.Texture
 import com.leagueofjire.core.game.RiotStrings
+import com.leagueofjire.core.offsets.Offsets.SpellDataSpellName
+import com.leagueofjire.core.offsets.Offsets.SpellInfoSpellData
+import com.leagueofjire.core.offsets.Offsets.SpellSlotDamage
+import com.leagueofjire.core.offsets.Offsets.SpellSlotLevel
+import com.leagueofjire.core.offsets.Offsets.SpellSlotSpellInfo
+import com.leagueofjire.core.offsets.Offsets.SpellSlotTime
 import com.leagueofjire.game.GameTime
 import com.leagueofjire.game.unit.champion.spell.GameChampionSpell
 import org.jire.kna.Pointer
@@ -29,14 +35,6 @@ import org.jire.kna.int
 class IGameChampionSpell(val slot: Int) : GameChampionSpell {
 	
 	companion object {
-		const val SpellSlotLevel = 0x20L
-		const val SpellSlotTime = 0x28L
-		const val SpellSlotDamage = 0x94L
-		const val SpellSlotSpellInfo = 0x13CL
-		const val SpellInfoSpellData = 0x44L
-		const val SpellDataSpellName = 0x6CL
-		const val SpellDataMissileName = 0x6CL
-		
 		const val DATA_SIZE = 0x150L
 	}
 	

@@ -25,6 +25,7 @@ dependencies {
 	
 	compileOnly("com.badlogicgames.gdx:gdx:$gdxVersion")
 	compileOnly(fastutil)
+    implementation(kotlin("script-runtime"))
 }
 
 sourceSets.main {
