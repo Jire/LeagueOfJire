@@ -41,7 +41,7 @@ object User32 : DirectNativeLib("user32") {
 	external fun FindWindowA(s: String?, s1: String?): Long
 	external fun GetWindowLongA(hwnd: Long, i: Int): Int
 	external fun SetWindowLongA(hwnd: Long, i: Int, i1: Int): Int
-	external fun SetWindowPos(hwnd: Long, hwnd1: Long, i: Int, i1: Int, i2: Int, i3: Int, i4: Int): Boolean
+	external fun SetWindowPos(hwnd: Long, hWndInsertAfter: Long, x: Int, y: Int, cx: Int, cy: Int, uFlags: Int): Boolean
 	external fun SetForegroundWindow(hwnd: Long): Boolean
 	external fun SetFocus(hwnd: Long): Long
 	external fun IsWindowVisible(hwnd: Long): Boolean

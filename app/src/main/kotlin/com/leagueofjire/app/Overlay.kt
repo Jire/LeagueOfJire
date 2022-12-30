@@ -32,15 +32,12 @@ import com.leagueofjire.app.transparency.TransparencyUser32
 import com.leagueofjire.app.transparency.WindowCompositionAttributeData
 import com.leagueofjire.core.game.IGameContext
 import com.leagueofjire.core.native.User32
-import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.WinUser
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
-import org.jire.kna.JNAPointerCache
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.system.windows.User32.*
 import java.util.concurrent.ThreadLocalRandom
-import kotlin.concurrent.thread
 import kotlin.math.min
 
 class Overlay(
@@ -91,7 +88,7 @@ class Overlay(
 			myHWND, HWND_TOPMOST,
 			Screen.OVERLAY_OFFSET, Screen.OVERLAY_OFFSET,
 			Screen.OVERLAY_WIDTH, Screen.OVERLAY_HEIGHT,
-			0
+			2 or 1
 		)
 	}
 	
